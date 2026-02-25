@@ -1,4 +1,9 @@
 # 🧬 MedgeClaw
+### An AI-Powered Biomedical Research Assistant
+
+<p align="center">
+  <img src="./logo.png" alt="MedgeClaw Logo" width="300">
+</p>
 
 **English** | [中文](README_ZH.md)
 

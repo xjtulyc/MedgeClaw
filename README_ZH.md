@@ -1,4 +1,9 @@
 # 🧬 MedgeClaw
+### AI 驱动的生物医学研究助手
+
+<p align="center">
+  <img src="./logo.png" alt="MedgeClaw Logo" width="300">
+</p>
 
 [English](README.md) | **中文**
 

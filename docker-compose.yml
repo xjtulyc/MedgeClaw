@@ -26,6 +26,7 @@ services:
       - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
       - ANTHROPIC_DEFAULT_SONNET_MODEL=${MODEL:-claude-sonnet-4-6}
       - ANTHROPIC_DEFAULT_OPUS_MODEL=${MODEL:-claude-sonnet-4-6}
+      - ANTHROPIC_SMALL_FAST_MODEL=${ANTHROPIC_SMALL_FAST_MODEL:-}
       # Optional third-party API keys for K-Dense skills
       - NCBI_API_KEY=${NCBI_API_KEY:-}
       - CHEMBL_API_KEY=${CHEMBL_API_KEY:-}

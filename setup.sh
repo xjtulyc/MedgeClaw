@@ -65,14 +65,31 @@ npm install -g @anthropic-ai/claude-code
 # ── Configure Claude Code model provider ─────────────────────
 source .env
 mkdir -p ~/.claude
+
+# Build the env block for Claude Code settings
+CLAUDE_ENV='"ANTHROPIC_AUTH_TOKEN": "'"${ANTHROPIC_API_KEY}"'"'
+CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "ANTHROPIC_BASE_URL": "'"${ANTHROPIC_BASE_URL}"'"'
+CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "ANTHROPIC_DEFAULT_SONNET_MODEL": "'"${MODEL}"'"'
+CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "ANTHROPIC_DEFAULT_OPUS_MODEL": "'"${MODEL}"'"'
+CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "API_TIMEOUT_MS": "3000000"'
+
+# If using a third-party proxy, set ANTHROPIC_SMALL_FAST_MODEL
+# so Claude Code's BashTool pre-flight check uses a supported model
+if [ -n "${ANTHROPIC_SMALL_FAST_MODEL:-}" ]; then
+    CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "ANTHROPIC_SMALL_FAST_MODEL": "'"${ANTHROPIC_SMALL_FAST_MODEL}"'"'
+    echo "✅ ANTHROPIC_SMALL_FAST_MODEL set to: ${ANTHROPIC_SMALL_FAST_MODEL}"
+elif [ "${ANTHROPIC_BASE_URL}" != "https://api.anthropic.com" ]; then
+    echo "⚠️  WARNING: You are using a third-party API proxy (${ANTHROPIC_BASE_URL})"
+    echo "   but ANTHROPIC_SMALL_FAST_MODEL is not set in .env."
+    echo "   Claude Code may hang on bash commands!"
+    echo "   Fix: add to .env:  ANTHROPIC_SMALL_FAST_MODEL=${MODEL}"
+    echo ""
+fi
+
 cat > ~/.claude/settings.json <<EOF
 {
   "env": {
-    "ANTHROPIC_AUTH_TOKEN": "${ANTHROPIC_API_KEY}",
-    "ANTHROPIC_BASE_URL": "${ANTHROPIC_BASE_URL}",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "${MODEL}",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "${MODEL}",
-    "API_TIMEOUT_MS": "3000000"
+    ${CLAUDE_ENV}
   }
 }
 EOF

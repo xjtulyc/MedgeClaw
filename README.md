@@ -1,6 +1,6 @@
 # 🧬 MedgeClaw
 
-**English** | [中文](#中文)
+**English** | [中文](README_ZH.md)
 
 ---
 
@@ -84,10 +84,42 @@ Edit `.env` to choose your provider. All providers are drop-in replacements — 
 | Provider                       | Base URL                             | Notes            |
 | ------------------------------ | ------------------------------------ | ---------------- |
 | **Anthropic Claude** (default) | `https://api.anthropic.com`          | Best quality     |
-| **MiniMax 2.1**                | `https://api.minimax.chat/anthropic` | 国内可用，低延迟 |
-| **GLM-4.7** (Z.ai)             | `https://api.z.ai/api/anthropic`     | 国内可用         |
-| **DeepSeek**                   | `https://api.deepseek.com/anthropic` | 低成本           |
-| **Ollama** (local)             | `http://localhost:11434/v1`          | 完全离线         |
+| **MiniMax 2.1**                | `https://api.minimax.chat/anthropic` | Available in CN  |
+| **GLM-4.7** (Z.ai)             | `https://api.z.ai/api/anthropic`     | Available in CN  |
+| **DeepSeek**                   | `https://api.deepseek.com/anthropic` | Low cost         |
+| **Ollama** (local)             | `http://localhost:11434/v1`          | Fully offline    |
+
+---
+
+## ⚠️ Using Third-Party API Proxies
+
+If you use a third-party API proxy (MiniMax, GLM, DeepSeek, or any non-Anthropic endpoint), you **must** configure `ANTHROPIC_SMALL_FAST_MODEL` in your `.env` file. Without this, Claude Code will fail silently.
+
+### Why
+
+Claude Code runs a **pre-flight safety check** before every bash command, using a lightweight "small fast model" (defaults to `claude-3-5-haiku`). Most third-party proxies don't support Haiku, causing the pre-flight to return 503 errors and hang indefinitely with:
+
+```
+⚠️ [BashTool] Pre-flight check is taking longer than expected.
+```
+
+### Fix
+
+Add this line to your `.env`:
+
+```bash
+# Required for third-party API proxies:
+ANTHROPIC_SMALL_FAST_MODEL=claude-sonnet-4-20250514  # or any model your proxy supports
+```
+
+Then re-run `bash setup.sh` to apply.
+
+### How to verify
+
+```bash
+# Should complete in < 30 seconds. If it hangs, your SMALL_FAST_MODEL is wrong.
+claude --dangerously-skip-permissions -p 'run: echo hello'
+```
 
 ---
 
@@ -156,174 +188,23 @@ Please follow the [AgentSkills specification](https://agentskills.io/specificati
 
 ---
 
+## Roadmap
+
+- [x] Core architecture: OpenClaw + Claude Code + K-Dense Scientific Skills integration
+- [x] Docker analysis environment with RStudio Server and JupyterLab
+- [x] Third-party API proxy support (`ANTHROPIC_SMALL_FAST_MODEL` fix for BashTool pre-flight)
+- [x] `CLAUDE.md` project instructions for Claude Code (docker exec execution model)
+- [x] Multi-language analysis validation (Python + R, direct + Claude Code + K-Dense skills)
+- [ ] **Multi-agent workflow**: Parallel dispatch of sub-analyses (e.g., Python + R simultaneously) with result aggregation and cross-validation
+- [ ] **Automated literature integration**: Connect PubMed/bioRxiv search → auto-generate introduction and discussion sections referencing analysis results
+- [ ] **Interactive report builder**: Auto-generate publication-ready HTML/PDF reports with figures, tables, and statistical narratives from analysis outputs
+- [ ] **Domain-specific skill chains**: Pre-built pipelines for common workflows (GWAS → PRS → Mendelian Randomization, scRNA-seq → trajectory → cell-cell communication)
+- [ ] **Reproducibility engine**: Auto-generate Docker-based reproducibility packages with frozen environments, data checksums, and one-click re-execution
+
+---
+
 ## License
 
 MIT © 2026 [xjtulyc](https://github.com/xjtulyc)
 
 This project bundles [K-Dense Scientific Skills](https://github.com/K-Dense-AI/claude-scientific-skills) as a git submodule (MIT). Individual skills within that repository may have their own license — check each `SKILL.md` for details.
-
----
-
----
-
-# 中文
-
-**[English](#-medgeclaw)** | 中文
-
----
-
-基于 [OpenClaw](https://github.com/openclaw/openclaw) 和 [Claude Code](https://docs.claude.com/en/docs/claude-code/quickstart) 构建的开源生物医学 AI 研究助手，集成了 [K-Dense 140 个科学技能](https://github.com/K-Dense-AI/claude-scientific-skills)，覆盖生物信息学、药物发现、临床研究等领域。
-
-**通过 WhatsApp、Slack 或微信发送指令 → 助手自动运行分析 → 在 RStudio 或 JupyterLab 中查看结果。**
-
----
-
-## 架构
-
-```
-用户（语音/文字，通过 WhatsApp · Slack · Discord）
-        ↓
-OpenClaw 网关（对话层）
-        ↓  biomed-dispatch skill
-Claude Code（执行层）
-        ↓  K-Dense 科学技能包（140 个）
-R + Python 分析环境
-        ↓
-RStudio Server :8787  +  JupyterLab :8888（查看结果）
-```
-
----
-
-## 包含内容
-
-| 组件                 | 说明                                                         |
-| -------------------- | ------------------------------------------------------------ |
-| **OpenClaw**         | 对话式 AI 网关，接入微信/Slack 等消息应用                    |
-| **Claude Code**      | 自主执行复杂分析工作流                                       |
-| **K-Dense 科学技能** | 140 个即用型技能：基因组学、药物发现、临床研究、机器学习等   |
-| **R 环境**           | DESeq2、Seurat、edgeR、clusterProfiler、survival、ggplot2 等 |
-| **Python 环境**      | Scanpy、BioPython、PyDESeq2、lifelines、scikit-learn 等      |
-| **RStudio Server**   | 浏览器版 R IDE，访问 `localhost:8787`                        |
-| **JupyterLab**       | 浏览器版 Python/R Notebook，访问 `localhost:8888`            |
-| **biomed-dispatch**  | 核心桥接技能，将用户请求路由至 Claude Code                   |
-
----
-
-## 环境要求
-
-- **Node.js 22+** — [nodejs.org](https://nodejs.org)
-- **Docker + docker-compose** — [docs.docker.com](https://docs.docker.com/get-docker/)
-- **Git**
-- 一个支持的模型提供商 API Key（见下方）
-
----
-
-## 快速开始
-
-```bash
-# 1. 克隆项目（包含 K-Dense 子模块）
-git clone --recurse-submodules https://github.com/xjtulyc/MedgeClaw
-cd MedgeClaw
-
-# 2. 运行安装脚本（第一次运行会生成 .env 模板）
-bash setup.sh
-
-# 3. 填入你的 API Key
-nano .env
-
-# 4. 再次运行安装脚本完成安装
-bash setup.sh
-
-# 5. 启动分析环境
-docker compose up -d
-
-# 6. 启动 OpenClaw
-openclaw onboard
-```
-
----
-
-## 模型选择
-
-编辑 `.env` 选择模型提供商，无需修改其他配置：
-
-| 提供商                       | Base URL                             | 说明                   |
-| ---------------------------- | ------------------------------------ | ---------------------- |
-| **Anthropic Claude**（默认） | `https://api.anthropic.com`          | 效果最佳               |
-| **MiniMax 2.1**              | `https://api.minimax.chat/anthropic` | 国内可用，低延迟       |
-| **GLM-4.7**（智谱 Z.ai）     | `https://api.z.ai/api/anthropic`     | 国内可用               |
-| **DeepSeek**                 | `https://api.deepseek.com/anthropic` | 低成本                 |
-| **Ollama**（本地）           | `http://localhost:11434/v1`          | 完全离线，无需 API Key |
-
----
-
-## 使用示例
-
-OpenClaw 启动后，直接发送消息：
-
-```
-分析 data/counts.csv 的 RNA-seq 数据，treatment vs control，生成差异表达结果
-```
-```
-搜索 PubMed 近两年 CRISPR 碱基编辑的文献，总结前 10 篇
-```
-```
-对 data/clinical.csv 做生存分析，time=OS_months，event=OS_status
-```
-```
-分析 data/10x/ 目录下的单细胞 RNA-seq 数据
-```
-```
-从 ChEMBL 筛选 EGFR 抑制剂（IC50 < 50nM），生成构效关系报告
-```
-
-结果保存在 `./outputs/`，可在 RStudio（`localhost:8787`）或 JupyterLab（`localhost:8888`）中查看。
-
----
-
-## 目录结构
-
-```
-MedgeClaw/
-├── docker/
-│   ├── Dockerfile          # R + Python + RStudio + Jupyter
-│   └── entrypoint.sh
-├── skills/
-│   └── biomed-dispatch/    # 核心桥接技能
-│       └── SKILL.md
-├── scientific-skills/      # git 子模块 → K-Dense（140 个技能）
-├── data/                   # 放置你的数据文件（不进 git）
-├── outputs/                # 分析结果输出目录（不进 git）
-├── docker-compose.yml
-├── setup.sh
-├── .env.template
-└── .gitmodules
-```
-
----
-
-## 更新 K-Dense 科学技能
-
-```bash
-git submodule update --remote scientific-skills
-```
-
----
-
-## 参与贡献
-
-欢迎贡献。最有价值的贡献包括：
-
-- 改进 `skills/biomed-dispatch/SKILL.md`，提升任务路由准确性
-- 在 `skills/` 下添加新的领域专属技能（如特定临床或实验室工作流）
-- 优化 Dockerfile（减小镜像体积、更新包版本）
-
-新技能请遵循 [AgentSkills 规范](https://agentskills.io/specification)。
-
----
-
-## 许可证
-
-MIT © 2026 [xjtulyc](https://github.com/xjtulyc)
-
-本项目以 git 子模块形式引入 [K-Dense Scientific Skills](https://github.com/K-Dense-AI/claude-scientific-skills)（MIT 协议）。该仓库中每个技能可能有独立许可证，使用前请查阅对应 `SKILL.md`。

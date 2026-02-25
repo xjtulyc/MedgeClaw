@@ -1,0 +1,8 @@
+.env
+data/
+outputs/
+openclaw-workspace/
+node_modules/
+__pycache__/
+.Rhistory
+*.log

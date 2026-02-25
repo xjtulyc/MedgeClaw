@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  biomed-env:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile
+    image: medgeclaw:latest
+    container_name: medgeclaw
+    restart: unless-stopped
+    ports:
+      - "8787:8787"   # RStudio Server
+      - "8888:8888"   # JupyterLab
+    volumes:
+      - ./data:/workspace/data               # user data (shared read/write)
+      - ./outputs:/workspace/outputs         # analysis outputs
+      - ./scientific-skills:/workspace/skills/scientific  # K-Dense skills (read-only)
+      - claude-config:/root/.claude          # Claude Code config persistence
+    environment:
+      # RStudio Server
+      - PASSWORD=${RSTUDIO_PASSWORD:-biomed}
+      # JupyterLab
+      - JUPYTER_TOKEN=${JUPYTER_TOKEN:-biomed}
+      # Claude Code model provider
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_BASE_URL=${ANTHROPIC_BASE_URL:-https://api.anthropic.com}
+      - ANTHROPIC_DEFAULT_SONNET_MODEL=${MODEL:-claude-sonnet-4-6}
+      - ANTHROPIC_DEFAULT_OPUS_MODEL=${MODEL:-claude-sonnet-4-6}
+      # Optional third-party API keys for K-Dense skills
+      - NCBI_API_KEY=${NCBI_API_KEY:-}
+      - CHEMBL_API_KEY=${CHEMBL_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    networks:
+      - biomed-net
+
+volumes:
+  claude-config:
+
+networks:
+  biomed-net:
+    driver: bridge

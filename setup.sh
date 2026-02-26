@@ -21,6 +21,7 @@ NODE_MAJOR=$(node -e "console.log(process.versions.node.split('.')[0])")
 if [ "$NODE_MAJOR" -lt 22 ]; then
     echo "❌ Node.js 22+ required (current: $(node -v))"; exit 1
 fi
+echo "✅ nodjs component requirement satisfied"
 
 # ── Fix npm global install permissions (no sudo needed) ───────
 NPM_PREFIX="${HOME}/.npm-global"
@@ -34,7 +35,7 @@ if [ "$(npm config get prefix)" != "${NPM_PREFIX}" ]; then
     fi
 fi
 export PATH="${NPM_PREFIX}/bin:${PATH}"
-
+echo "✅ npm configured"
 # ── .env ──────────────────────────────────────────────────────
 if [ ! -f .env ]; then
     cp .env.template .env
@@ -44,7 +45,7 @@ if [ ! -f .env ]; then
     echo "   Then re-run: bash setup.sh"
     exit 0
 fi
-
+echo "✅ .env found, proceed setup protocol"
 # ── Create workspace directories ─────────────────────────────
 mkdir -p data outputs
 
@@ -72,6 +73,8 @@ CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "ANTHROPIC_BASE_URL": "'"${ANTHROPIC_BASE_URL
 CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "ANTHROPIC_DEFAULT_SONNET_MODEL": "'"${MODEL}"'"'
 CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "ANTHROPIC_DEFAULT_OPUS_MODEL": "'"${MODEL}"'"'
 CLAUDE_ENV="${CLAUDE_ENV}"$',\n    "API_TIMEOUT_MS": "3000000"'
+
+echo "✅ Claude Code environment variables configured"
 
 # If using a third-party proxy, set ANTHROPIC_SMALL_FAST_MODEL
 # so Claude Code's BashTool pre-flight check uses a supported model
@@ -103,6 +106,7 @@ ${COMPOSE_CMD} build
 mkdir -p ~/.openclaw
 WORKSPACE_DIR="$(pwd)/openclaw-workspace"
 mkdir -p "${WORKSPACE_DIR}/skills"
+echo "✅ openclaw will be configured under ~/.openclaw directory"
 
 cp -r skills/biomed-dispatch "${WORKSPACE_DIR}/skills/"
 

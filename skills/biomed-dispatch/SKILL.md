@@ -79,3 +79,4 @@ claude --print "Use survival analysis scientific skill with lifelines. Input: /w
 - Never modify raw data files in `/workspace/data/`
 - If the user's request is ambiguous, ask one clarifying question before dispatching
 - If Claude Code returns an error about a missing package, retry with `uv pip install [package]` prepended to the command
+- **涉及中文可视化时**，在 prompt 中加入：绘图前先导入 `skills/cjk-viz/scripts/setup_cjk_font.py` 执行字体检测，不要硬编码字体名

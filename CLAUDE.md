@@ -113,3 +113,20 @@ When finishing a long-running task, notify the user:
 ```bash
 openclaw system event --text "Done: <summary>" --mode now
 ```
+
+## 交互规范：边干边说
+
+**不要闷头干活。** 每个关键节点都要简短汇报进展。
+
+- 开始前：说一句打算怎么做
+- 每步完成后：报一下结果（一两句话）
+- 遇到问题：立刻说，不要自己闷头排查太久
+- 长任务等待中：冒个泡，说明在等什么
+- 完成后：简短总结结果
+
+示例：
+> "先看数据结构… 96628 行，5 个 wave。开始写分析脚本。"
+> "Python 跑完了，7 个文件。RCS 图有 bug，修一下。"
+> "发现 .ttc 字体的坑，改用 FontProperties 模式。"
+
+**粒度：** 每个有意义的动作或发现说一句，不需要每个 tool call 都汇报。

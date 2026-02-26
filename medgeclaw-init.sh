@@ -83,6 +83,15 @@ sg docker -c "docker exec medgeclaw Rscript /workspace/path/to/script.R"
 
 完整项目说明见: $MEDGECLAW_DIR/CLAUDE.md
 遇到具体任务时读取该文件获取完整指引。
+
+## 交互规范
+
+边干边说，不要闷头干活：
+- 开始前说打算怎么做
+- 每步完成后简短汇报
+- 遇到问题立刻说
+- 长任务等待中冒个泡
+- 完成后简短总结
 EOF
 echo "   ✅ MEDGECLAW.md"
 

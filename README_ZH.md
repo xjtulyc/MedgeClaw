@@ -18,15 +18,16 @@
 ## 架构
 
 ```
-用户（语音/文字，通过 WhatsApp · Slack · Discord）
+用户（语音/文字，通过 WhatsApp · Slack · 飞书 · Discord）
         ↓
 OpenClaw 网关（对话层）
         ↓  biomed-dispatch skill
 Claude Code（执行层）
         ↓  K-Dense 科学技能包（140 个）
-R + Python 分析环境
-        ↓
-RStudio Server :8787  +  JupyterLab :8888（查看结果）
+R + Python 分析环境（Docker）
+        ↓                     ↓
+Research Dashboard :77xx     RStudio :8787 / JupyterLab :8888
+  （实时进度、代码与产物预览）    （交互式探索）
 ```
 
 ---
@@ -35,14 +36,16 @@ RStudio Server :8787  +  JupyterLab :8888（查看结果）
 
 | 组件                 | 说明                                                         |
 | -------------------- | ------------------------------------------------------------ |
-| **OpenClaw**         | 对话式 AI 网关，接入微信/Slack 等消息应用                    |
+| **OpenClaw**         | 对话式 AI 网关，接入飞书/Slack 等消息应用                    |
 | **Claude Code**      | 自主执行复杂分析工作流                                       |
 | **K-Dense 科学技能** | 140 个即用型技能：基因组学、药物发现、临床研究、机器学习等   |
+| **Research Dashboard** | 实时 Web 看板，展示进度、代码、产物预览、文件浏览           |
 | **R 环境**           | DESeq2、Seurat、edgeR、clusterProfiler、survival、ggplot2 等 |
 | **Python 环境**      | Scanpy、BioPython、PyDESeq2、lifelines、scikit-learn 等      |
 | **RStudio Server**   | 浏览器版 R IDE，访问 `localhost:8787`                        |
 | **JupyterLab**       | 浏览器版 Python/R Notebook，访问 `localhost:8888`            |
 | **biomed-dispatch**  | 核心桥接技能，将用户请求路由至 Claude Code                   |
+| **CJK 可视化**       | 自动检测 CJK 字体，matplotlib 中文标签不再乱码              |
 
 ---
 
@@ -150,6 +153,31 @@ OpenClaw 启动后，直接发送消息：
 
 ---
 
+## 📊 Research Dashboard（实时研究看板）
+
+每次分析任务自动生成一个**实时 Web 看板** —— 不用等任务跑完，不用翻日志。
+
+**功能亮点：**
+- **实时进度条** — 置顶显示，一眼看到跑了多少
+- **分析计划总览** — 所有步骤列表 + 完成状态（✅/⏳）
+- **逐步展示** — 每步包含：描述 → 代码（折叠）→ 产物输出
+- **内联预览** — 图片直接渲染、表格从 CSV 实时加载、文字结果高亮
+- **完整脚本** — 点击加载完整 `.py` 文件，不只是片段
+- **复制与下载** — 📋 复制代码/表格/文本，⬇ 下载图片/CSV
+- **色盲友好** — IBM 无障碍色板 + GitHub Dark 主题
+- **文件浏览** — 浏览所有产物，一键预览
+
+**工作原理：**
+```
+AI 完成一步 → 更新 state.json → Dashboard 自动刷新（2秒轮询）
+```
+
+三个文件，零依赖：`dashboard.html` + `state.json` + `dashboard_serve.py`。
+
+详细规范见 [docs/dashboard.md](docs/dashboard.md)。
+
+---
+
 ## 目录结构
 
 ```
@@ -158,13 +186,23 @@ MedgeClaw/
 │   ├── Dockerfile          # R + Python + RStudio + Jupyter
 │   └── entrypoint.sh
 ├── skills/
-│   └── biomed-dispatch/    # 核心桥接技能
+│   ├── biomed-dispatch/    # 核心桥接技能：将任务路由至 Claude Code
+│   │   └── SKILL.md
+│   ├── dashboard/          # Research Dashboard：实时任务可视化
+│   │   ├── SKILL.md        # Dashboard 规范 & state.json schema
+│   │   ├── dashboard.html  # 单文件前端（暗色主题，IBM 色板）
+│   │   └── dashboard_serve.py  # 多线程 HTTP 服务器
+│   └── cjk-viz/            # matplotlib CJK 字体检测
 │       └── SKILL.md
 ├── scientific-skills/      # git 子模块 → K-Dense（140 个技能）
-├── data/                   # 放置你的数据文件（不进 git）
-├── outputs/                # 分析结果输出目录（不进 git）
+├── data/                   # 按任务组织的数据与分析目录
+│   └── <task_name>/
+│       ├── dashboard/      # state.json + dashboard.html（自动创建）
+│       └── output/         # 分析输出（CSV、PNG 等）
+├── docs/                   # 项目文档
 ├── docker-compose.yml
 ├── setup.sh
+├── CLAUDE.md               # Claude Code 项目规范
 ├── .env.template
 └── .gitmodules
 ```
@@ -198,6 +236,9 @@ git submodule update --remote scientific-skills
 - [x] 第三方 API 代理支持（`ANTHROPIC_SMALL_FAST_MODEL` 修复 BashTool 预检问题）
 - [x] `CLAUDE.md` 项目规范（Claude Code 通过 docker exec 执行分析）
 - [x] 多语言分析验证（Python + R，直接编写 + Claude Code + K-Dense skills）
+- [x] **Research Dashboard**：实时 Web 看板，支持进度跟踪、逐步代码与产物预览、复制/下载、色盲友好设计
+- [x] **CJK 可视化技能**：Docker 内自动检测 CJK 字体，解决 `.ttc` 字体渲染问题
+- [x] **飞书集成**：接入飞书群聊，支持团队协作
 - [ ] **多智能体工作流**：并行分发子分析任务（如 Python + R 同时跑），自动聚合结果并交叉验证
 - [ ] **文献自动集成**：PubMed/bioRxiv 检索 → 自动生成引言和讨论章节，关联分析结果
 - [ ] **交互式报告生成器**：从分析输出自动生成发表级别的 HTML/PDF 报告，含图表、统计叙述

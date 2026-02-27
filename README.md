@@ -18,15 +18,17 @@ An open-source biomedical AI research assistant built on [OpenClaw](https://gith
 ## Architecture
 
 ```
-User (voice / text via WhatsApp · Slack · Discord)
+User (voice / text via WhatsApp · Slack · Feishu · Discord)
         ↓
 OpenClaw Gateway  (conversation layer)
         ↓  biomed-dispatch skill
 Claude Code  (execution layer)
         ↓  K-Dense Scientific Skills (140 skills)
-R + Python Analysis Environment
-        ↓
-RStudio Server :8787  +  JupyterLab :8888  (view results)
+R + Python Analysis Environment (Docker)
+        ↓                    ↓
+Research Dashboard :77xx    RStudio :8787 / JupyterLab :8888
+  (real-time progress,        (interactive exploration)
+   code & output preview)
 ```
 
 ---
@@ -38,11 +40,13 @@ RStudio Server :8787  +  JupyterLab :8888  (view results)
 | **OpenClaw**                  | Conversational AI gateway — connects to your messaging apps                        |
 | **Claude Code**               | Executes complex analysis workflows autonomously                                   |
 | **K-Dense Scientific Skills** | 140 ready-to-use skills: genomics, drug discovery, clinical research, ML, and more |
+| **Research Dashboard**        | Real-time web dashboard showing progress, code, outputs, and file previews         |
 | **R Environment**             | DESeq2, Seurat, edgeR, clusterProfiler, survival, ggplot2, and more                |
 | **Python Environment**        | Scanpy, BioPython, PyDESeq2, lifelines, scikit-learn, and more                     |
 | **RStudio Server**            | Browser-based R IDE at `localhost:8787`                                            |
 | **JupyterLab**                | Browser-based Python/R notebooks at `localhost:8888`                               |
 | **biomed-dispatch**           | The bridge skill that routes your requests to Claude Code                          |
+| **CJK Visualization**         | Auto-detects CJK fonts for matplotlib, no more tofu blocks in Chinese plots        |
 
 ---
 
@@ -152,6 +156,31 @@ Results are saved to `./outputs/` and viewable in RStudio (`localhost:8787`) or 
 
 ---
 
+## 📊 Research Dashboard
+
+Every analysis task automatically spawns a **live web dashboard** — no need to wait for completion or check logs.
+
+**Features:**
+- **Real-time progress bar** — sticky header, always visible
+- **Analysis plan overview** — all steps listed with completion status (✅/⏳)
+- **Step-by-step breakdown** — each step shows: description → code (collapsible) → outputs
+- **Inline previews** — images render directly, tables load from CSV files, text results highlighted
+- **Full script access** — click to load the complete `.py` file, not just snippets
+- **Copy & download everywhere** — 📋 copy code/tables/text, ⬇ download images/CSVs
+- **Color-blind friendly** — IBM accessible palette + GitHub Dark theme
+- **File browser** — browse all output artifacts with one-click preview
+
+**How it works:**
+```
+AI completes a step → updates state.json → dashboard auto-refreshes (2s polling)
+```
+
+Three files, zero dependencies: `dashboard.html` + `state.json` + `dashboard_serve.py`.
+
+See [docs/dashboard.md](docs/dashboard.md) for the full specification.
+
+---
+
 ## Directory Structure
 
 ```
@@ -160,13 +189,23 @@ MedgeClaw/
 │   ├── Dockerfile          # R + Python + RStudio + Jupyter
 │   └── entrypoint.sh
 ├── skills/
-│   └── biomed-dispatch/    # Core bridge skill
+│   ├── biomed-dispatch/    # Core bridge skill: routes tasks to Claude Code
+│   │   └── SKILL.md
+│   ├── dashboard/          # Research Dashboard: real-time task visualization
+│   │   ├── SKILL.md        # Dashboard specification & state.json schema
+│   │   ├── dashboard.html  # Single-file frontend (dark theme, IBM palette)
+│   │   └── dashboard_serve.py  # Threaded HTTP server
+│   └── cjk-viz/            # CJK font detection for matplotlib
 │       └── SKILL.md
 ├── scientific-skills/      # git submodule → K-Dense (140 skills)
-├── data/                   # Put your data files here (git-ignored)
-├── outputs/                # Analysis outputs appear here (git-ignored)
+├── data/                   # Per-task data & analysis directories
+│   └── <task_name>/
+│       ├── dashboard/      # state.json + dashboard.html (auto-created)
+│       └── output/         # Analysis outputs (CSV, PNG, etc.)
+├── docs/                   # Project documentation
 ├── docker-compose.yml
 ├── setup.sh
+├── CLAUDE.md               # Project instructions for Claude Code
 ├── .env.template
 └── .gitmodules
 ```
@@ -200,6 +239,9 @@ Please follow the [AgentSkills specification](https://agentskills.io/specificati
 - [x] Third-party API proxy support (`ANTHROPIC_SMALL_FAST_MODEL` fix for BashTool pre-flight)
 - [x] `CLAUDE.md` project instructions for Claude Code (docker exec execution model)
 - [x] Multi-language analysis validation (Python + R, direct + Claude Code + K-Dense skills)
+- [x] **Research Dashboard**: real-time web dashboard with progress tracking, step-by-step code & output preview, copy/download, color-blind friendly design
+- [x] **CJK visualization skill**: auto-detect CJK fonts in Docker, solve `.ttc` font rendering issues
+- [x] **Feishu integration**: connect to Feishu group chat for team collaboration
 - [ ] **Multi-agent workflow**: Parallel dispatch of sub-analyses (e.g., Python + R simultaneously) with result aggregation and cross-validation
 - [ ] **Automated literature integration**: Connect PubMed/bioRxiv search → auto-generate introduction and discussion sections referencing analysis results
 - [ ] **Interactive report builder**: Auto-generate publication-ready HTML/PDF reports with figures, tables, and statistical narratives from analysis outputs

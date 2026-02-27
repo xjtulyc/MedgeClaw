@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedgeClaw Dashboard</title>
+<style>
+  :root {
+    --cb-blue: #648FFF;
+    --cb-purple: #785EF0;
+    --cb-magenta: #DC267F;
+    --cb-orange: #FE6100;
+    --cb-yellow: #FFB000;
+    --bg-primary: #0d1117;
+    --bg-secondary: #10151c;
+    --bg-card: #161b22;
+    --bg-card-header: #0d1117;
+    --bg-hover: #1c2128;
+    --border: #30363d;
+    --border-subtle: #21262d;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #484f58;
+    --accent: var(--cb-blue);
+    --accent-glow: rgba(100, 143, 255, 0.12);
+    --success: #3fb950;
+    --warning: var(--cb-orange);
+    --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", sans-serif;
+    background: var(--bg-primary); color: var(--text-primary);
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── Header ─── */
+  #header { position: sticky; top: 0; z-index: 100; background: var(--bg-card); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  #header-top { padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  #header-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  #status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); flex-shrink: 0; animation: pulse 2s ease-in-out infinite; box-shadow: 0 0 6px rgba(63,185,80,0.4); }
+  #status-dot.done { animation: none; background: var(--cb-blue); box-shadow: 0 0 6px rgba(100,143,255,0.4); }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.85)} }
+  #task-title { font-size: 15px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #header-meta { display: flex; align-items: center; gap: 16px; font-size: 12px; color: var(--text-muted); flex-shrink: 0; }
+  #progress-label { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--cb-blue); min-width: 40px; text-align: right; }
+  #updated-at { font-variant-numeric: tabular-nums; }
+  #progress-bar-wrap { height: 4px; background: var(--bg-primary); overflow: hidden; }
+  #progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--cb-blue), var(--cb-purple)); transition: width 1s var(--ease-out-expo); border-radius: 0 2px 2px 0; box-shadow: 0 0 8px rgba(100,143,255,0.4); }
+  #progress-bar-fill.complete { background: linear-gradient(90deg, var(--cb-blue), var(--success)); box-shadow: 0 0 8px rgba(63,185,80,0.4); }
+  /* Expanded progress section under header */
+  #progress-detail { padding: 10px 24px 12px; background: var(--bg-card); border-bottom: 1px solid var(--border); display: none; }
+  #progress-detail.visible { display: block; }
+  #progress-detail-bar { height: 8px; background: var(--bg-primary); border-radius: 99px; overflow: hidden; margin-bottom: 6px; }
+  #progress-detail-fill { height: 100%; background: linear-gradient(90deg, var(--cb-blue), var(--cb-purple)); border-radius: 99px; transition: width 1s var(--ease-out-expo); }
+  #progress-detail-fill.complete { background: linear-gradient(90deg, var(--cb-blue), var(--success)); }
+  #progress-detail-text { font-size: 11px; color: var(--text-secondary); display: flex; justify-content: space-between; }
+  #progress-steps { font-variant-numeric: tabular-nums; }
+
+  /* ─── Panels ─── */
+  #panels { flex: 1; padding: 16px 20px 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; scroll-behavior: smooth; }
+
+  /* ─── Panel Card ─── */
+  .panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; flex-shrink: 0; transition: border-color .3s ease, box-shadow .3s ease; }
+  .panel:hover { border-color: rgba(100,143,255,.35); box-shadow: 0 0 0 1px var(--accent-glow), 0 2px 8px rgba(0,0,0,.15); }
+  .panel-label { padding: 10px 16px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); background: var(--bg-card-header); border-bottom: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; transition: background .2s ease; }
+  .panel-label:hover { background: var(--bg-hover); }
+  .panel-label .chevron { font-size: 10px; transition: transform .35s var(--ease-out-expo); color: var(--text-muted); }
+  .panel.collapsed .chevron { transform: rotate(-90deg); }
+  .panel-body { padding: 14px 16px; overflow: hidden; max-height: 5000px; transition: max-height .45s var(--ease-out-expo), padding .35s var(--ease-out-expo), opacity .3s ease; opacity: 1; }
+  .panel.collapsed .panel-body { max-height: 0; padding-top: 0; padding-bottom: 0; opacity: 0; }
+
+  /* Step panel accent */
+  .panel.panel-step { border-left: 3px solid var(--cb-purple); }
+  .panel.panel-step:hover { border-left-color: var(--cb-blue); }
+
+  /* ─── Text ─── */
+  .panel-text { font-size: 13px; line-height: 1.8; color: var(--text-primary); white-space: pre-wrap; word-break: break-word; }
+
+  /* ─── List ─── */
+  .panel-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .panel-list li { font-size: 13px; color: var(--text-primary); padding: 8px 12px; background: var(--bg-secondary); border-radius: 6px; border-left: 3px solid var(--border); word-break: break-word; transition: border-color .2s ease, background .2s ease; line-height: 1.6; }
+  .panel-list li:hover { border-left-color: var(--cb-blue); background: var(--bg-hover); }
+
+  /* ─── Code ─── */
+  .code-wrap { position: relative; }
+  .panel-code { font-family: "SF Mono","Fira Code","Consolas","Source Code Pro",monospace; font-size: 12px; color: #7ee787; background: #010409; padding: 14px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; line-height: 1.65; overflow-x: auto; max-height: 360px; overflow-y: auto; border: 1px solid var(--border-subtle); }
+
+  /* ─── Action buttons ─── */
+  .action-bar { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .action-btn { font-size: 11px; padding: 4px 10px; border-radius: 5px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-secondary); cursor: pointer; transition: all .2s ease; display: inline-flex; align-items: center; gap: 4px; }
+  .action-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--cb-blue); }
+  .action-btn.copied { border-color: var(--success); color: var(--success); }
+  /* Top-right copy button for code blocks */
+  .copy-corner { position: absolute; top: 6px; right: 6px; z-index: 2; }
+
+  /* ─── Table ─── */
+  .panel-table-wrap { overflow-x: auto; max-height: 400px; overflow-y: auto; border-radius: 8px; border: 1px solid var(--border); }
+  .panel-table { width: 100%; border-collapse: collapse; font-size: 12px; line-height: 1.55; font-variant-numeric: tabular-nums; }
+  .panel-table th { background: var(--bg-hover); color: var(--text-secondary); font-weight: 600; padding: 8px 12px; text-align: left; position: sticky; top: 0; z-index: 1; border-bottom: 2px solid var(--border); white-space: nowrap; }
+  .panel-table td { padding: 6px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); white-space: nowrap; }
+  .panel-table tr:hover td { background: rgba(100,143,255,.04); }
+  .panel-table tr:nth-child(even) td { background: rgba(255,255,255,.015); }
+  .panel-table tr:nth-child(even):hover td { background: rgba(100,143,255,.04); }
+  .table-loading { padding: 20px; text-align: center; color: var(--text-muted); font-size: 12px; }
+
+  /* ─── Image ─── */
+  .image-wrap { position: relative; display: inline-block; }
+  .panel-image { max-width: 100%; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: transform .25s var(--ease-spring), box-shadow .25s ease; display: block; }
+  .panel-image:hover { transform: scale(1.005); box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+  .images-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 12px; }
+  .images-grid .image-wrap { width: 100%; }
+  .images-grid img { width: 100%; max-width: 100%; }
+  .img-error { padding: 24px; text-align: center; color: var(--text-muted); font-size: 12px; background: var(--bg-secondary); border-radius: 8px; border: 1px dashed var(--border); }
+  .img-dl { position: absolute; bottom: 8px; right: 8px; opacity: 0; transition: opacity .2s ease; }
+  .image-wrap:hover .img-dl { opacity: 1; }
+
+  /* ─── Files ─── */
+  .files-grid { display: flex; flex-direction: column; gap: 4px; }
+  .file-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--bg-secondary); border-radius: 6px; font-size: 12px; color: var(--text-primary); border-left: 3px solid var(--border); transition: border-color .2s ease, background .2s ease; cursor: pointer; text-decoration: none; }
+  .file-item:hover { border-left-color: var(--cb-blue); background: var(--bg-hover); }
+  .file-icon { font-size: 16px; flex-shrink: 0; }
+  .file-name { flex: 1; word-break: break-all; }
+  .file-size { color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
+  .file-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; flex-shrink: 0; }
+  .file-badge.preview { background: rgba(100,143,255,.15); color: var(--cb-blue); }
+  .file-badge.download { background: rgba(63,185,80,.15); color: var(--success); }
+
+/* ─── Code details (collapsible) ─── */
+  .code-details { margin: 6px 0; border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden; }
+  .code-details[open] { border-color: var(--border); }
+  .code-summary { padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--bg-secondary); cursor: pointer; user-select: none; list-style: none; display: flex; align-items: center; gap: 6px; transition: background .2s ease; }
+  .code-summary::-webkit-details-marker { display: none; }
+  .code-summary::before { content: '▶'; font-size: 9px; color: var(--text-muted); transition: transform .25s var(--ease-out-expo); }
+  .code-details[open] > .code-summary::before { transform: rotate(90deg); }
+  .code-summary:hover { background: var(--bg-hover); }
+  .code-file-loading { padding: 16px; text-align: center; color: var(--text-muted); font-size: 12px; }
+
+  /* ─── Step panel internals ─── */
+  .step-desc { font-size: 13px; line-height: 1.75; color: var(--text-primary); margin-bottom: 10px; white-space: pre-wrap; word-break: break-word; }
+  .step-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin: 12px 0 6px; display: flex; align-items: center; gap: 6px; }
+  .step-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
+  .step-output { margin: 8px 0; }
+  .step-output-text { font-size: 13px; line-height: 1.6; color: var(--cb-yellow); background: rgba(255,176,0,.06); padding: 8px 12px; border-radius: 6px; border-left: 3px solid var(--cb-yellow); }
+  .step-caption { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* ─── Modal (CSV/Text preview) ─── */
+  #modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.8); backdrop-filter: blur(4px); z-index: 998; justify-content: center; align-items: center; padding: 24px; }
+  #modal.active { display: flex; }
+  #modal-inner { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; max-width: 90vw; max-height: 85vh; overflow: auto; box-shadow: 0 16px 48px rgba(0,0,0,.5); display: flex; flex-direction: column; }
+  #modal-header { position: sticky; top: 0; background: var(--bg-card-header); padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 2; flex-shrink: 0; }
+  #modal-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  #modal-actions { display: flex; gap: 6px; align-items: center; }
+  #modal-close { background: none; border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; padding: 4px 10px; border-radius: 6px; font-size: 12px; transition: background .2s ease; }
+  #modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+  #modal-body { padding: 12px; overflow: auto; flex: 1; }
+
+  /* ─── Lightbox ─── */
+  #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.88); backdrop-filter: blur(8px); z-index: 999; cursor: zoom-out; justify-content: center; align-items: center; padding: 24px; }
+  #lightbox.active { display: flex; }
+  #lightbox img { max-width: 94%; max-height: 92%; border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,.6); }
+  #lightbox .lb-actions { position: fixed; bottom: 24px; display: flex; gap: 8px; }
+
+  /* ─── Scrollbar ─── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  .empty-state { color: var(--text-muted); text-align: center; margin-top: 80px; font-size: 13px; line-height: 2; }
+  .empty-state .logo { font-size: 32px; margin-bottom: 8px; opacity: .5; }
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="header-top">
+    <div id="header-left">
+      <span id="status-dot"></span>
+      <span id="task-title">等待任务...</span>
+    </div>
+    <div id="header-meta">
+      <span id="progress-label">0%</span>
+      <span id="updated-at">—</span>
+    </div>
+  </div>
+  <div id="progress-bar-wrap"><div id="progress-bar-fill"></div></div>
+  <div id="progress-detail">
+    <div id="progress-detail-bar"><div id="progress-detail-fill"></div></div>
+    <div id="progress-detail-text">
+      <span id="progress-steps"></span>
+      <span id="progress-status"></span>
+    </div>
+  </div>
+</div>
+
+<div id="panels">
+  <div class="empty-state"><div class="logo">🧬🦀</div>MedgeClaw Dashboard<br>等待 state.json ...</div>
+</div>
+
+<div id="lightbox" onclick="closeLightbox(event)">
+  <img id="lightbox-img" src="">
+  <div class="lb-actions">
+    <button class="action-btn" onclick="event.stopPropagation();downloadFile(document.getElementById('lightbox-img').src)">⬇ 下载</button>
+    <button class="action-btn" onclick="event.stopPropagation();document.getElementById('lightbox').classList.remove('active')">✕ 关闭</button>
+  </div>
+</div>
+
+<div id="modal" onclick="if(event.target===this)this.classList.remove('active')">
+  <div id="modal-inner">
+    <div id="modal-header">
+      <span id="modal-title">Preview</span>
+      <div id="modal-actions">
+        <button class="action-btn" id="modal-copy-btn" onclick="copyModalContent()">📋 复制</button>
+        <button class="action-btn" id="modal-dl-btn" style="display:none" onclick="downloadModalFile()">⬇ 下载</button>
+        <button id="modal-close" onclick="document.getElementById('modal').classList.remove('active')">关闭 ✕</button>
+      </div>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+let lastJson = '';
+let collapsedPanels = new Set();
+let outputDir = '';
+let modalRawText = '';
+let modalFileSrc = '';
+
+async function fetchState() {
+  try {
+    const res = await fetch('state.json?t=' + Date.now());
+    if (!res.ok) return;
+    const text = await res.text();
+    if (text === lastJson) return;
+    lastJson = text;
+    renderDashboard(JSON.parse(text));
+  } catch (e) {}
+}
+
+function renderDashboard(data) {
+  document.getElementById('task-title').textContent = data.title || '未命名任务';
+  document.getElementById('updated-at').textContent = data.updated_at || '';
+
+  // Extract outputDir from first image found (top-level or inside step)
+  if (data.panels && !outputDir) {
+    let firstSrc = '';
+    for (const p of data.panels) {
+      if (p.type === 'image') {
+        firstSrc = Array.isArray(p.content) ? p.content[0] : p.content;
+        break;
+      }
+      if (p.type === 'step' && p.content && p.content.outputs) {
+        const imgOut = p.content.outputs.find(o => o.kind === 'image' && o.src);
+        if (imgOut) { firstSrc = imgOut.src; break; }
+      }
+    }
+    if (firstSrc) { const ps = firstSrc.split('/'); ps.pop(); outputDir = ps.join('/'); }
+  }
+
+  let pct = 0;
+  if (data.panels) { const pp = data.panels.find(p => p.type === 'progress'); if (pp) pct = clamp(Number(pp.content)||0, 0, 100); }
+  const fill = document.getElementById('progress-bar-fill');
+  const dfill = document.getElementById('progress-detail-fill');
+  fill.style.width = pct + '%';
+  dfill.style.width = pct + '%';
+  fill.classList.toggle('complete', pct >= 100);
+  dfill.classList.toggle('complete', pct >= 100);
+  document.getElementById('progress-label').textContent = pct + '%';
+  document.getElementById('status-dot').classList.toggle('done', pct >= 100);
+
+  // Progress detail section
+  const totalSteps = data.panels ? data.panels.filter(p => p.type === 'step').length : 0;
+  const detail = document.getElementById('progress-detail');
+  if (totalSteps > 0) {
+    detail.classList.add('visible');
+    document.getElementById('progress-steps').textContent = `${totalSteps} 个步骤`;
+    document.getElementById('progress-status').textContent = pct >= 100 ? '✅ 全部完成' : `⏳ 进行中 ${pct}%`;
+  } else {
+    detail.classList.remove('visible');
+  }
+
+  const container = document.getElementById('panels');
+  if (!data.panels || data.panels.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="logo">🧬🦀</div>暂无面板数据</div>';
+    return;
+  }
+  const panels = data.panels.filter(p => p.type !== 'progress');
+  container.innerHTML = panels.map((p, i) => renderPanel(p, i)).join('');
+
+  // Load tables from src
+  document.querySelectorAll('[data-table-src]').forEach(el => {
+    loadTableFromSrc(el.dataset.tableSrc, el);
+  });
+}
+
+function renderPanel(panel, idx) {
+  const id = 'panel-' + idx;
+  const collapsed = collapsedPanels.has(panel.label);
+  const isStep = panel.type === 'step';
+  let body = '';
+
+  switch (panel.type) {
+    case 'text': body = renderText(panel.content); break;
+    case 'list': body = renderList(panel.content); break;
+    case 'code': body = renderCode(panel.content); break;
+    case 'table': body = renderTablePanel(panel.content); break;
+    case 'image': body = renderImages(panel.content); break;
+    case 'files': body = renderFiles(panel.content); break;
+    case 'step': body = renderStep(panel.content); break;
+    default: body = '<div class="panel-text">' + esc(JSON.stringify(panel.content)) + '</div>';
+  }
+
+  return `<div class="panel${isStep?' panel-step':''}${collapsed?' collapsed':''}" id="${id}">
+    <div class="panel-label" onclick="togglePanel('${escAttr(panel.label)}','${id}')">
+      <span>${esc(panel.label||'')}</span><span class="chevron">▼</span>
+    </div>
+    <div class="panel-body">${body}</div>
+  </div>`;
+}
+
+/* ─── Renderers ─── */
+
+function renderText(content) {
+  const uid = 'txt-' + Math.random().toString(36).slice(2, 8);
+  return `<div class="panel-text" id="${uid}">${esc(content||'')}</div>
+  <div class="action-bar"><button class="action-btn" onclick="copyFromEl('${uid}', this)">📋 复制</button></div>`;
+}
+
+function renderList(content) {
+  const items = Array.isArray(content) ? content : [];
+  if (!items.length) return '<ul class="panel-list"><li style="color:var(--text-muted)">（空）</li></ul>';
+  return '<ul class="panel-list">' + items.map(i => '<li>' + esc(String(i)) + '</li>').join('') + '</ul>';
+}
+
+function renderCode(content, showActions = true) {
+  const uid = 'code-' + Math.random().toString(36).slice(2, 8);
+  let html = `<div class="code-wrap">
+    <button class="action-btn copy-corner" onclick="copyCodeBlock('${uid}', this)">📋</button>
+    <div class="panel-code" id="${uid}">${esc(content||'')}</div>
+  </div>`;
+  if (showActions) {
+    html += `<div class="action-bar"><button class="action-btn" onclick="copyCodeBlock('${uid}', this)">📋 复制代码</button></div>`;
+  }
+  return html;
+}
+
+function renderTablePanel(content) {
+  if (!content) return '<div class="panel-text" style="color:var(--text-muted)">表格数据为空</div>';
+  // File reference mode
+  if (content.src) {
+    const tid = 'tbl-' + Math.random().toString(36).slice(2, 8);
+    return `<div id="${tid}" data-table-src="${esc(content.src)}" class="table-loading">加载中: ${esc(content.src)}</div>
+    <div class="action-bar">
+      <button class="action-btn" onclick="copyTableTsv('${tid}')">📋 复制 TSV</button>
+      <button class="action-btn" onclick="downloadFile('${escAttr(content.src)}')">⬇ 下载 CSV</button>
+    </div>`;
+  }
+  // Inline data mode
+  if (content.headers && content.rows) {
+    const tid = 'tbl-' + Math.random().toString(36).slice(2, 8);
+    return renderTableHtml(content.headers, content.rows, tid) +
+      `<div class="action-bar">
+        <button class="action-btn" onclick="copyTableTsv('${tid}')">📋 复制 TSV</button>
+      </div>`;
+  }
+  return '<div class="panel-text" style="color:var(--text-muted)">无法解析表格数据</div>';
+}
+
+function renderTableHtml(headers, rows, id) {
+  let h = `<div class="panel-table-wrap" id="${id||''}"><table class="panel-table"><thead><tr>`;
+  headers.forEach(hd => h += '<th>' + esc(String(hd)) + '</th>');
+  h += '</tr></thead><tbody>';
+  rows.forEach(row => { h += '<tr>'; (Array.isArray(row)?row:[row]).forEach(c => h += '<td>' + esc(String(c)) + '</td>'); h += '</tr>'; });
+  h += '</tbody></table></div>';
+  return h;
+}
+
+function renderImages(content) {
+  const urls = Array.isArray(content) ? content : [content];
+  if (urls.length === 1) {
+    return `<div class="image-wrap">
+      <img class="panel-image" src="${esc(urls[0])}?t=${Date.now()}" onclick="showLightbox(this.src)" loading="lazy" onerror="this.parentNode.innerHTML='<div class=img-error>⚠️ 图片加载失败: ${esc(urls[0])}</div>'">
+      <button class="action-btn img-dl" onclick="event.stopPropagation();downloadFile('${escAttr(urls[0])}')">⬇</button>
+    </div>`;
+  }
+  return '<div class="images-grid">' + urls.map(u => `<div class="image-wrap">
+    <img class="panel-image" src="${esc(u)}?t=${Date.now()}" onclick="showLightbox(this.src)" loading="lazy" onerror="this.parentNode.innerHTML='<div class=img-error>⚠️ ${esc(u)}</div>'">
+    <button class="action-btn img-dl" onclick="event.stopPropagation();downloadFile('${escAttr(u)}')">⬇</button>
+  </div>`).join('') + '</div>';
+}
+
+function renderFiles(content) {
+  if (!Array.isArray(content) || !content.length) return '<div class="panel-text" style="color:var(--text-muted)">暂无产物</div>';
+  return '<div class="files-grid">' + content.map(f => {
+    const name = typeof f === 'string' ? f : f.name;
+    const size = (typeof f === 'object' && f.size) ? f.size : '';
+    const icon = getFileIcon(name);
+    const ext = (name.split('.').pop()||'').toLowerCase();
+    const isImg = ['png','jpg','jpeg','svg','gif','webp'].includes(ext);
+    const isCsv = ['csv','tsv'].includes(ext);
+    const isTxt = ['txt','md','log','json'].includes(ext);
+    const filePath = outputDir ? outputDir + '/' + name : name;
+
+    let click = '', badge = '';
+    if (isImg) { click = `onclick="showLightbox('${escAttr(filePath)}')"`; badge = '<span class="file-badge preview">预览</span>'; }
+    else if (isCsv) { click = `onclick="previewCsv('${escAttr(filePath)}','${escAttr(name)}')"`;  badge = '<span class="file-badge preview">预览</span>'; }
+    else if (isTxt) { click = `onclick="previewText('${escAttr(filePath)}','${escAttr(name)}')"`;  badge = '<span class="file-badge preview">预览</span>'; }
+    else { click = `onclick="downloadFile('${escAttr(filePath)}')"`;  badge = '<span class="file-badge download">下载</span>'; }
+
+    return `<div class="file-item" ${click}>
+      <span class="file-icon">${icon}</span><span class="file-name">${esc(name)}</span>${badge}${size?'<span class="file-size">'+esc(size)+'</span>':''}
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function renderStep(content) {
+  if (!content) return '';
+  let html = '';
+  // Description
+  if (content.desc) html += `<div class="step-desc">${esc(content.desc)}</div>`;
+  // Code (snippet + full file)
+  if (content.code || content.code_file) {
+    html += '<div class="step-section-label">💻 代码</div>';
+    if (content.code) {
+      const cid = 'sc-' + Math.random().toString(36).slice(2, 8);
+      html += `<details class="code-details"><summary class="code-summary">核心代码片段</summary>`;
+      html += renderCode(content.code, false);
+      html += `</details>`;
+    }
+    if (content.code_file) {
+      const fid = 'cf-' + Math.random().toString(36).slice(2, 8);
+      html += `<details class="code-details"><summary class="code-summary">📄 完整脚本: ${esc(content.code_file.split('/').pop())}</summary>
+        <div id="${fid}" class="code-file-loading">加载中...</div>
+      </details>`;
+      // defer load
+      setTimeout(() => loadCodeFile(content.code_file, fid), 50);
+    }
+  }
+  // Outputs
+  if (content.outputs && content.outputs.length) {
+    html += '<div class="step-section-label">📦 产物</div>';
+    content.outputs.forEach(o => {
+      html += '<div class="step-output">';
+      switch (o.kind) {
+        case 'text':
+          const tid = 'so-' + Math.random().toString(36).slice(2, 8);
+          html += `<div class="step-output-text" id="${tid}">${esc(o.value||'')}</div>
+            <div class="action-bar"><button class="action-btn" onclick="copyFromEl('${tid}', this)">📋 复制</button></div>`;
+          break;
+        case 'image':
+          html += `<div class="image-wrap">
+            <img class="panel-image" src="${esc(o.src)}?t=${Date.now()}" onclick="showLightbox(this.src)" loading="lazy" onerror="this.parentNode.innerHTML='<div class=img-error>⚠️ ${esc(o.src)}</div>'">
+            <button class="action-btn img-dl" onclick="event.stopPropagation();downloadFile('${escAttr(o.src)}')">⬇</button>
+          </div>`;
+          if (o.caption) html += `<div class="step-caption">${esc(o.caption)}</div>`;
+          break;
+        case 'table':
+          if (o.src) {
+            const tid = 'stbl-' + Math.random().toString(36).slice(2, 8);
+            html += `<div id="${tid}" data-table-src="${esc(o.src)}" class="table-loading">加载中: ${esc(o.src)}</div>
+              <div class="action-bar">
+                <button class="action-btn" onclick="copyTableTsv('${tid}')">📋 复制 TSV</button>
+                <button class="action-btn" onclick="downloadFile('${escAttr(o.src)}')">⬇ 下载 CSV</button>
+              </div>`;
+          }
+          if (o.caption) html += `<div class="step-caption">${esc(o.caption)}</div>`;
+          break;
+        case 'file':
+          html += `<div class="file-item" onclick="downloadFile('${escAttr(o.src)}')">
+            <span class="file-icon">${getFileIcon(o.src)}</span>
+            <span class="file-name">${esc(o.src.split('/').pop())}</span>
+            <span class="file-badge download">下载</span>
+          </div>`;
+          break;
+      }
+      html += '</div>';
+    });
+  }
+  return html;
+}
+
+/* ─── Code file loader ─── */
+async function loadCodeFile(src, elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  try {
+    const res = await fetch(src + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const uid = 'cfl-' + Math.random().toString(36).slice(2, 8);
+    el.outerHTML = `<div class="code-wrap">
+      <button class="action-btn copy-corner" onclick="copyCodeBlock('${uid}', this)">📋</button>
+      <div class="panel-code" id="${uid}" style="max-height:500px">${esc(text)}</div>
+    </div>
+    <div class="action-bar">
+      <button class="action-btn" onclick="copyCodeBlock('${uid}', this)">📋 复制代码</button>
+      <button class="action-btn" onclick="downloadFile('${escAttr(src)}')">⬇ 下载文件</button>
+    </div>`;
+  } catch (e) {
+    el.innerHTML = `<div class="img-error">⚠️ 加载失败: ${esc(src)} (${esc(e.message)})</div>`;
+  }
+}
+
+/* ─── Table loader ─── */
+async function loadTableFromSrc(src, el) {
+  try {
+    const res = await fetch(src + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const { headers, rows } = parseCsv(text);
+    el.outerHTML = renderTableHtml(headers, rows, el.id);
+  } catch (e) {
+    el.innerHTML = `<div class="img-error">⚠️ 加载失败: ${esc(src)} (${esc(e.message)})</div>`;
+  }
+}
+
+/* ─── CSV parser ─── */
+function parseCsv(text) {
+  const lines = text.trim().split('\n');
+  if (!lines.length) return { headers: [], rows: [] };
+  const parse = line => {
+    const row = []; let inQ = false, cell = '';
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') { inQ = !inQ; continue; }
+      if (c === ',' && !inQ) { row.push(cell.trim()); cell = ''; continue; }
+      cell += c;
+    }
+    row.push(cell.trim());
+    return row;
+  };
+  return { headers: parse(lines[0]), rows: lines.slice(1).map(parse) };
+}
+
+/* ─── Actions ─── */
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+  // Fallback for HTTP (non-secure context)
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  return Promise.resolve();
+}
+
+function copyFromEl(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  copyToClipboard(el.textContent).then(() => flashCopied(btn));
+}
+
+function copyText(btn, text) {
+  copyToClipboard(text).then(() => flashCopied(btn));
+}
+
+function copyCodeBlock(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  copyToClipboard(el.textContent).then(() => flashCopied(btn));
+}
+
+function copyTableTsv(id) {
+  const wrap = document.getElementById(id);
+  if (!wrap) return;
+  const table = wrap.querySelector('table');
+  if (!table) return;
+  const rows = [];
+  table.querySelectorAll('tr').forEach(tr => {
+    const cells = [];
+    tr.querySelectorAll('th, td').forEach(c => cells.push(c.textContent));
+    rows.push(cells.join('\t'));
+  });
+  copyToClipboard(rows.join('\n')).then(() => {
+    const bar = wrap.nextElementSibling;
+    if (bar) { const btn = bar.querySelector('.action-btn'); if (btn) flashCopied(btn); }
+  });
+}
+
+function flashCopied(btn) {
+  btn.classList.add('copied');
+  const orig = btn.textContent;
+  btn.textContent = '✓ 已复制';
+  setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1500);
+}
+
+function downloadFile(src) {
+  const a = document.createElement('a');
+  a.href = src.split('?')[0];
+  a.download = src.split('/').pop().split('?')[0];
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+async function previewCsv(path, name) {
+  try {
+    const res = await fetch(path + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    modalRawText = text;
+    modalFileSrc = path;
+    const { headers, rows } = parseCsv(text);
+    document.getElementById('modal-title').textContent = name + ' (' + rows.length + ' rows)';
+    document.getElementById('modal-body').innerHTML = renderTableHtml(headers, rows);
+    document.getElementById('modal-dl-btn').style.display = '';
+    document.getElementById('modal-dl-btn').onclick = () => downloadFile(path);
+    document.getElementById('modal').classList.add('active');
+  } catch (e) { alert('无法预览: ' + e.message); }
+}
+
+async function previewText(path, name) {
+  try {
+    const res = await fetch(path + '?t=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    modalRawText = text;
+    modalFileSrc = path;
+    document.getElementById('modal-title').textContent = name;
+    document.getElementById('modal-body').innerHTML = '<div class="panel-code" style="max-height:70vh">' + esc(text) + '</div>';
+    document.getElementById('modal-dl-btn').style.display = '';
+    document.getElementById('modal-dl-btn').onclick = () => downloadFile(path);
+    document.getElementById('modal').classList.add('active');
+  } catch (e) { alert('无法预览: ' + e.message); }
+}
+
+function copyModalContent() {
+  if (modalRawText) {
+    copyToClipboard(modalRawText).then(() => {
+      const btn = document.getElementById('modal-copy-btn');
+      flashCopied(btn);
+    });
+  }
+}
+
+function downloadModalFile() {
+  if (modalFileSrc) downloadFile(modalFileSrc);
+}
+
+/* ─── Lightbox ─── */
+function showLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('active');
+}
+function closeLightbox(e) {
+  if (e.target === document.getElementById('lightbox') || e.target === document.getElementById('lightbox-img')) {
+    document.getElementById('lightbox').classList.remove('active');
+  }
+}
+
+/* ─── Utilities ─── */
+function togglePanel(label, id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('collapsed');
+  collapsedPanels[el.classList.contains('collapsed') ? 'add' : 'delete'](label);
+}
+
+function getFileIcon(name) {
+  const ext = (name.split('.').pop()||'').toLowerCase();
+  return {png:'🖼️',jpg:'🖼️',jpeg:'🖼️',svg:'🖼️',gif:'🖼️',webp:'🖼️',csv:'📊',xlsx:'📊',xls:'📊',tsv:'📊',txt:'📄',md:'📄',log:'📄',py:'🐍',r:'📈',R:'📈',pdf:'📕',html:'🌐',json:'🔧'}[ext]||'📁';
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+function escJs(s) { return JSON.stringify(s); }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('lightbox').classList.remove('active');
+    document.getElementById('modal').classList.remove('active');
+  }
+});
+
+setInterval(fetchState, 2000);
+fetchState();
+</script>
+</body>
+</html>

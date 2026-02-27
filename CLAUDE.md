@@ -39,12 +39,14 @@ packages, or have different versions. The container is the canonical environment
 ## Directory Conventions
 
 - `data/` — input data files (read-only, user-provided)
-- `outputs/` — analysis results (CSV, Excel, images, reports)
+- `data/<task_name>/output/` — per-task analysis results (CSV, images, reports)
+- `data/<task_name>/dashboard/` — per-task dashboard (state.json, dashboard.html, serve.py)
+- `outputs/` — legacy shared output directory (prefer per-task output/ for new tasks)
 - `visualization/` — HTML dashboards and interactive visualizations
-- `skills/` — OpenClaw skill definitions
+- `skills/` — OpenClaw skill definitions (dashboard, biomed-dispatch, cjk-viz)
 - `scientific-skills/` — K-Dense 140 scientific skills (git submodule, read-only)
 
-Always `mkdir -p outputs visualization` before writing files there.
+Always `mkdir -p` output and dashboard directories before writing files there.
 
 ## Code Style
 
@@ -113,6 +115,41 @@ When finishing a long-running task, notify the user:
 ```bash
 openclaw system event --text "Done: <summary>" --mode now
 ```
+
+## Dashboard（任务可视化看板）
+
+**每次数据分析任务都必须启动 Dashboard。** 它是用户实时了解进度和产物的唯一窗口。
+
+详细规范见 `skills/dashboard/SKILL.md`。核心要点：
+
+### 启动流程
+```bash
+TASK_DIR=data/<task_name>
+mkdir -p "$TASK_DIR/dashboard"
+cp skills/dashboard/dashboard.html "$TASK_DIR/dashboard/"
+cp skills/dashboard/dashboard_serve.py "$TASK_DIR/dashboard/"
+# 生成初始 state.json（见下文）
+# 启动 server（serve 任务根目录，不是 dashboard/ 子目录）
+python "$TASK_DIR/dashboard/dashboard_serve.py" --port 7788
+# Dashboard URL: http://localhost:7788/dashboard/dashboard.html
+```
+
+### state.json 核心面板
+
+| 面板 | 说明 |
+|------|------|
+| `progress` | 进度百分比（置顶在 header） |
+| `list` (分析计划) | 总览所有步骤 + 完成状态（✅/⏳） |
+| `step` | **每步一个**：desc + code（核心片段，默认折叠）+ code_file（完整脚本路径）+ outputs（图片/表格/文字产物） |
+| `files` | 最终产物文件列表（可预览/下载） |
+
+### 关键规则
+1. **每完成一步就更新 state.json**，不要等全部做完再写
+2. **表格用文件引用** `{"src": "/output/table1.csv"}`，前端实时加载 CSV
+3. **图片路径用绝对路径**：`/output/fig1.png`（相对于 serve 根 = 任务根）
+4. **step 面板要有 code 和 code_file**——核心片段帮助快速理解，完整脚本供深入查看
+5. **所有预览内容都可复制/下载**（前端已内置按钮）
+6. **启动后立即告诉用户 Dashboard URL**
 
 ## 交互规范：边干边说
 

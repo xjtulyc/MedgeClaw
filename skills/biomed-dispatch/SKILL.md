@@ -34,17 +34,33 @@ scientific execution environment (K-Dense Scientific Skills).
 
 1. **Identify task type** from the user's request
 2. **Locate data files** — check if user mentioned a file path; if not, list `/workspace/data/` and confirm with user
-3. **Construct the Claude Code prompt** — be specific about:
+3. **Set up Dashboard** — every analysis task must have a live dashboard:
+   ```bash
+   TASK_DIR=data/<task_name>
+   mkdir -p "$TASK_DIR/dashboard" "$TASK_DIR/output"
+   cp skills/dashboard/dashboard.html "$TASK_DIR/dashboard/"
+   cp skills/dashboard/dashboard_serve.py "$TASK_DIR/dashboard/"
+   # Write initial state.json with: progress(0%), 研究概要, 分析计划(list), empty steps
+   # Start server
+   python "$TASK_DIR/dashboard/dashboard_serve.py" --port <free_port> &
+   # Tell user the URL immediately: http://localhost:<port>/dashboard/dashboard.html
+   ```
+4. **Construct the Claude Code prompt** — include dashboard update instructions:
    - Which scientific skill(s) to use
    - Input file path(s)
-   - Output directory: always `/workspace/outputs/`
+   - Output directory: always `$TASK_DIR/output/`
+   - **Dashboard state.json path** and update expectations:
+     - Update progress after each step
+     - Use `step` panels with `desc`, `code`, `code_file`, `outputs`
+     - Use `{"src": "/output/file.csv"}` for table references (NOT inline data)
+     - Image paths absolute: `/output/fig1.png`
    - Expected output format (table, figure, report)
-4. **Execute** via Claude Code CLI:
+5. **Execute** via Claude Code CLI:
    ```bash
-   claude --print "Use available scientific skills. [TASK DESCRIPTION]. Input: [PATH]. Save all outputs to /workspace/outputs/. [SPECIFIC INSTRUCTIONS]."
+   claude --dangerously-skip-permissions -p "Use available scientific skills. [TASK]. Input: [PATH]. Outputs: $TASK_DIR/output/. Update dashboard at $TASK_DIR/dashboard/state.json after each step (step panels with code + outputs). Completion: openclaw system event --text 'Done: summary' --mode now"
    ```
-5. **Monitor** — if the task takes >30s, inform the user it is running in background
-6. **Report back** — summarize results, list output files, and suggest logical next steps
+6. **Monitor** — if the task takes >30s, inform the user it is running in background
+7. **Report back** — summarize results, point user to dashboard URL for details
 
 ## Output handling
 - Tables → summarize top rows, mention full file path
@@ -54,24 +70,28 @@ scientific execution environment (K-Dense Scientific Skills).
 
 ## Example dispatches
 
+**Clinical data analysis (complete flow with dashboard):**
+```bash
+# 1. Setup
+TASK_DIR=data/charls_ace
+mkdir -p "$TASK_DIR/dashboard" "$TASK_DIR/output"
+cp skills/dashboard/dashboard.html "$TASK_DIR/dashboard/"
+cp skills/dashboard/dashboard_serve.py "$TASK_DIR/dashboard/"
+# 2. Write initial state.json
+# 3. Start dashboard server
+python "$TASK_DIR/dashboard/dashboard_serve.py" --port 7790 &
+# 4. Dispatch to Claude Code
+claude --dangerously-skip-permissions -p "分析 CHARLS 队列中 ACE 与 CVD 的关联。Input: data/charls_ace/charls.dta. Output: data/charls_ace/output/. 每步更新 dashboard state.json（step panels with code + outputs）。完成后: openclaw system event --text 'Done: ACE-CVD分析完成' --mode now"
+```
+
 **RNA-seq differential expression:**
 ```bash
-claude --print "Use DESeq2 scientific skill. Run differential expression analysis. Counts matrix: /workspace/data/counts.csv, metadata: /workspace/data/meta.csv, contrast: treatment vs control. Save volcano plot and results table to /workspace/outputs/."
+claude --dangerously-skip-permissions -p "Use DESeq2 scientific skill. Run differential expression. Counts: /workspace/data/counts.csv, metadata: /workspace/data/meta.csv, contrast: treatment vs control. Save to /workspace/data/rnaseq/output/. Update dashboard at /workspace/data/rnaseq/dashboard/state.json."
 ```
 
 **Single-cell RNA-seq:**
 ```bash
-claude --print "Use Scanpy scientific skill. Analyze 10X Genomics data at /workspace/data/10x/. Run QC, clustering, and marker gene identification. Save UMAP plot and cluster annotations to /workspace/outputs/."
-```
-
-**Literature search:**
-```bash
-claude --print "Use PubMed scientific skill. Search for recent papers (last 2 years) on [TOPIC]. Summarize top 10 results with abstracts. Save to /workspace/outputs/literature_review.md"
-```
-
-**Survival analysis:**
-```bash
-claude --print "Use survival analysis scientific skill with lifelines. Input: /workspace/data/clinical.csv. Columns: time=OS_months, event=OS_status, group=treatment. Generate Kaplan-Meier plot and log-rank test results. Save to /workspace/outputs/."
+claude --dangerously-skip-permissions -p "Use Scanpy scientific skill. Analyze 10X data at /workspace/data/10x/. QC, clustering, markers. Save to /workspace/data/10x/output/. Update dashboard state.json with step panels."
 ```
 
 ## Important rules

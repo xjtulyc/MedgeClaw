@@ -90,6 +90,8 @@ Skills 位于 `scientific-skills/scientific-skills/` 目录，每个子目录包
 | 生存分析 | `lifelines`（在 `exploratory-data-analysis` 中） |
 | 科研绘图 | `scientific-visualization`, `matplotlib`, `plotly` |
 | 数据探索 | `exploratory-data-analysis` |
+| SVG 信息面板 | `svg-ui-templates`（列表、清单、流程图、报告） |
+| 飞书图文汇报 | `feishu-rich-card`（图片上传 + Card Kit 交互卡片） |
 
 如果不确定用哪个 skill，可以 `ls scientific-skills/scientific-skills/` 浏览完整列表。
 
@@ -154,6 +156,22 @@ python "$TASK_DIR/dashboard/dashboard_serve.py" --port 7788
 ## 交互规范：边干边说
 
 **不要闷头干活。** 每个关键节点都要简短汇报进展。
+
+## 飞书图文汇报
+
+**当需要向飞书群发送分析结果或进度汇报时，优先使用图文卡片而非纯文本。**
+
+### 工作流
+```
+生成图片（SVG模板/matplotlib/PIL） → cairosvg 转 PNG → 上传飞书 → Card Kit 发送
+```
+
+### 关键要点
+- 使用 `skills/svg-ui-templates/` 生成专业级信息面板
+- 使用 `skills/feishu-rich-card/references/send_card.py` 发送卡片
+- 图片必须先上传获取 `image_key`，不能用 URL
+- Card schema 必须是 `"2.0"`
+- 详见 `skills/feishu-rich-card/SKILL.md` 和 `skills/svg-ui-templates/SKILL.md`
 
 - 开始前：说一句打算怎么做
 - 每步完成后：报一下结果（一两句话）

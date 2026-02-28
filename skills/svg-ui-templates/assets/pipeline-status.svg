@@ -1,0 +1,126 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" font-family="'Inter','Helvetica Neue','Microsoft YaHei',sans-serif">
+  <defs>
+    <linearGradient id="pipeHdr" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#311B92"/>
+      <stop offset="100%" style="stop-color:#4527A0"/>
+    </linearGradient>
+    <filter id="ns" x="-4%" y="-4%" width="108%" height="112%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.12"/>
+    </filter>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#78909C"/>
+    </marker>
+    <marker id="arrowDone" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#43A047"/>
+    </marker>
+    <marker id="arrowActive" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
+      <path d="M0,0 L10,4 L0,8 Z" fill="#FF8F00"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="700" fill="#FAFAFA" rx="8"/>
+
+  <!-- Header -->
+  <rect width="1200" height="56" fill="url(#pipeHdr)" rx="8"/>
+  <rect y="48" width="1200" height="8" fill="url(#pipeHdr)"/>
+  <text x="40" y="36" fill="#FFF" font-size="20" font-weight="700">{{TITLE}}</text>
+  <text x="1160" y="36" fill="rgba(255,255,255,0.7)" font-size="13" text-anchor="end">{{DATE}}</text>
+
+  <!-- ===== Pipeline nodes (horizontal flow) ===== -->
+  <!-- Node 1: Done -->
+  <rect x="40" y="100" width="180" height="80" rx="10" fill="#E8F5E9" stroke="#43A047" stroke-width="2" filter="url(#ns)"/>
+  <text x="130" y="135" text-anchor="middle" fill="#2E7D32" font-size="14" font-weight="700">{{NODE_1}}</text>
+  <text x="130" y="155" text-anchor="middle" fill="#4CAF50" font-size="11">✓ 已完成</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="220" y1="140" x2="272" y2="140" stroke="#43A047" stroke-width="2.5" marker-end="url(#arrowDone)"/>
+
+  <!-- Node 2: Done -->
+  <rect x="280" y="100" width="180" height="80" rx="10" fill="#E8F5E9" stroke="#43A047" stroke-width="2" filter="url(#ns)"/>
+  <text x="370" y="135" text-anchor="middle" fill="#2E7D32" font-size="14" font-weight="700">{{NODE_2}}</text>
+  <text x="370" y="155" text-anchor="middle" fill="#4CAF50" font-size="11">✓ 已完成</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="460" y1="140" x2="512" y2="140" stroke="#FF8F00" stroke-width="2.5" marker-end="url(#arrowActive)"/>
+
+  <!-- Node 3: Active -->
+  <rect x="520" y="100" width="180" height="80" rx="10" fill="#FFF8E1" stroke="#FF8F00" stroke-width="2.5" filter="url(#ns)"/>
+  <text x="610" y="135" text-anchor="middle" fill="#E65100" font-size="14" font-weight="700">{{NODE_3}}</text>
+  <text x="610" y="155" text-anchor="middle" fill="#FF8F00" font-size="11">◐ 进行中</text>
+
+  <!-- Arrow 3→4 -->
+  <line x1="700" y1="140" x2="752" y2="140" stroke="#78909C" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow)"/>
+
+  <!-- Node 4: Pending -->
+  <rect x="760" y="100" width="180" height="80" rx="10" fill="#ECEFF1" stroke="#90A4AE" stroke-width="1.5" filter="url(#ns)"/>
+  <text x="850" y="135" text-anchor="middle" fill="#546E7A" font-size="14" font-weight="600">{{NODE_4}}</text>
+  <text x="850" y="155" text-anchor="middle" fill="#90A4AE" font-size="11">待启动</text>
+
+  <!-- Arrow 4→5 -->
+  <line x1="940" y1="140" x2="992" y2="140" stroke="#78909C" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrow)"/>
+
+  <!-- Node 5: Pending -->
+  <rect x="1000" y="100" width="170" height="80" rx="10" fill="#ECEFF1" stroke="#90A4AE" stroke-width="1.5" filter="url(#ns)"/>
+  <text x="1085" y="135" text-anchor="middle" fill="#546E7A" font-size="14" font-weight="600">{{NODE_5}}</text>
+  <text x="1085" y="155" text-anchor="middle" fill="#90A4AE" font-size="11">待启动</text>
+
+  <!-- ===== Dependency detail cards below ===== -->
+  <!-- Section title -->
+  <text x="40" y="228" fill="#311B92" font-size="16" font-weight="700">阶段详情与依赖关系</text>
+  <rect x="40" y="236" width="1120" height="1.5" fill="#D1C4E9"/>
+
+  <!-- Detail card 1 -->
+  <rect x="40" y="252" width="350" height="180" rx="8" fill="#FFF" stroke="#E0E0E0" stroke-width="1" filter="url(#ns)"/>
+  <rect x="40" y="252" width="350" height="36" rx="8" fill="#E8F5E9"/>
+  <rect x="40" y="280" width="350" height="8" fill="#E8F5E9"/>
+  <text x="60" y="276" fill="#2E7D32" font-size="13" font-weight="700">{{NODE_1}}</text>
+  <text x="60" y="310" fill="#455A64" font-size="12">负责人：{{NODE_1_OWNER}}</text>
+  <text x="60" y="332" fill="#455A64" font-size="12">周期：{{NODE_1_DURATION}}</text>
+  <text x="60" y="354" fill="#455A64" font-size="12">依赖：{{NODE_1_DEPS}}</text>
+  <text x="60" y="376" fill="#455A64" font-size="12">交付物：{{NODE_1_OUTPUT}}</text>
+  <text x="60" y="398" fill="#455A64" font-size="12">状态：{{NODE_1_STATUS}}</text>
+
+  <!-- Detail card 2 -->
+  <rect x="420" y="252" width="350" height="180" rx="8" fill="#FFF" stroke="#E0E0E0" stroke-width="1" filter="url(#ns)"/>
+  <rect x="420" y="252" width="350" height="36" rx="8" fill="#FFF8E1"/>
+  <rect x="420" y="280" width="350" height="8" fill="#FFF8E1"/>
+  <text x="440" y="276" fill="#E65100" font-size="13" font-weight="700">{{NODE_3}}</text>
+  <text x="440" y="310" fill="#455A64" font-size="12">负责人：{{NODE_3_OWNER}}</text>
+  <text x="440" y="332" fill="#455A64" font-size="12">周期：{{NODE_3_DURATION}}</text>
+  <text x="440" y="354" fill="#455A64" font-size="12">依赖：{{NODE_3_DEPS}}</text>
+  <text x="440" y="376" fill="#455A64" font-size="12">交付物：{{NODE_3_OUTPUT}}</text>
+  <text x="440" y="398" fill="#455A64" font-size="12">状态：{{NODE_3_STATUS}}</text>
+
+  <!-- Detail card 3 -->
+  <rect x="800" y="252" width="360" height="180" rx="8" fill="#FFF" stroke="#E0E0E0" stroke-width="1" filter="url(#ns)"/>
+  <rect x="800" y="252" width="360" height="36" rx="8" fill="#ECEFF1"/>
+  <rect x="800" y="280" width="360" height="8" fill="#ECEFF1"/>
+  <text x="820" y="276" fill="#546E7A" font-size="13" font-weight="700">{{NODE_5}}</text>
+  <text x="820" y="310" fill="#455A64" font-size="12">负责人：{{NODE_5_OWNER}}</text>
+  <text x="820" y="332" fill="#455A64" font-size="12">周期：{{NODE_5_DURATION}}</text>
+  <text x="820" y="354" fill="#455A64" font-size="12">依赖：{{NODE_5_DEPS}}</text>
+  <text x="820" y="376" fill="#455A64" font-size="12">交付物：{{NODE_5_OUTPUT}}</text>
+  <text x="820" y="398" fill="#455A64" font-size="12">状态：{{NODE_5_STATUS}}</text>
+
+  <!-- Risk / blockers bar -->
+  <rect x="40" y="456" width="1120" height="48" rx="8" fill="#FFF3E0" stroke="#FFB300" stroke-width="1"/>
+  <text x="60" y="485" fill="#E65100" font-size="13" font-weight="600">⚠ 风险提示：{{RISK_NOTE}}</text>
+
+  <!-- Legend -->
+  <rect x="40" y="530" width="1120" height="40" rx="6" fill="#F5F5F5"/>
+  <circle cx="70" cy="550" r="8" fill="#43A047"/>
+  <text x="86" y="554" fill="#546E7A" font-size="12">已完成</text>
+  <circle cx="170" cy="550" r="8" fill="#FF8F00"/>
+  <text x="186" y="554" fill="#546E7A" font-size="12">进行中</text>
+  <circle cx="270" cy="550" r="8" fill="#90A4AE"/>
+  <text x="286" y="554" fill="#546E7A" font-size="12">待启动</text>
+  <circle cx="370" cy="550" r="8" fill="#E53935"/>
+  <text x="386" y="554" fill="#546E7A" font-size="12">阻塞</text>
+  <line x1="470" y1="550" x2="520" y2="550" stroke="#78909C" stroke-width="2"/>
+  <text x="530" y="554" fill="#546E7A" font-size="12">依赖关系</text>
+  <line x1="630" y1="550" x2="680" y2="550" stroke="#78909C" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="690" y="554" fill="#546E7A" font-size="12">未激活依赖</text>
+
+  <!-- Footer -->
+  <text x="40" y="600" fill="#B0BEC5" font-size="11">{{FOOTER}}</text>
+</svg>

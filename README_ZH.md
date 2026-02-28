@@ -25,9 +25,10 @@ OpenClaw 网关（对话层）
 Claude Code（执行层）
         ↓  K-Dense 科学技能包（140 个）
 R + Python 分析环境（Docker）
-        ↓                     ↓
-Research Dashboard :77xx     RStudio :8787 / JupyterLab :8888
-  （实时进度、代码与产物预览）    （交互式探索）
+        ↓                     ↓                     ↓
+Research Dashboard :77xx     RStudio :8787         飞书图文卡片
+  （实时进度、代码与产物预览） / JupyterLab :8888    （SVG 面板 → PNG
+                             （交互式探索）           → 交互式卡片）
 ```
 
 ---
@@ -46,6 +47,8 @@ Research Dashboard :77xx     RStudio :8787 / JupyterLab :8888
 | **JupyterLab**       | 浏览器版 Python/R Notebook，访问 `localhost:8888`            |
 | **biomed-dispatch**  | 核心桥接技能，将用户请求路由至 Claude Code                   |
 | **CJK 可视化**       | 自动检测 CJK 字体，matplotlib 中文标签不再乱码              |
+| **SVG UI 模板**      | 专业级 SVG 信息面板：列表、清单、流程状态图、图文报告        |
+| **飞书图文卡片**     | 在飞书群聊中发送图文混排交互式卡片，用于汇报进展和展示结果   |
 
 ---
 
@@ -192,8 +195,15 @@ MedgeClaw/
 │   │   ├── SKILL.md        # Dashboard 规范 & state.json schema
 │   │   ├── dashboard.html  # 单文件前端（暗色主题，IBM 色板）
 │   │   └── dashboard_serve.py  # 多线程 HTTP 服务器
-│   └── cjk-viz/            # matplotlib CJK 字体检测
-│       └── SKILL.md
+│   ├── cjk-viz/            # matplotlib CJK 字体检测
+│   │   └── SKILL.md
+│   ├── svg-ui-templates/   # 专业级 SVG 信息面板（列表、清单、流程图、报告）
+│   │   ├── SKILL.md
+│   │   ├── assets/         # 4 个模板 SVG
+│   │   └── references/     # 模板使用指南
+│   └── feishu-rich-card/   # 飞书图文混排交互式卡片
+│       ├── SKILL.md
+│       └── references/     # send_card.py 辅助函数
 ├── scientific-skills/      # git 子模块 → K-Dense（140 个技能）
 ├── data/                   # 按任务组织的数据与分析目录
 │   └── <task_name>/
@@ -239,6 +249,8 @@ git submodule update --remote scientific-skills
 - [x] **Research Dashboard**：实时 Web 看板，支持进度跟踪、逐步代码与产物预览、复制/下载、色盲友好设计
 - [x] **CJK 可视化技能**：Docker 内自动检测 CJK 字体，解决 `.ttc` 字体渲染问题
 - [x] **飞书集成**：接入飞书群聊，支持团队协作
+- [x] **SVG UI 模板**：专业级 SVG 信息面板（列表、清单、流程状态图、图文报告），Material Design 色板
+- [x] **飞书图文卡片**：在飞书群聊中发送图文混排交互式卡片 —— SVG/matplotlib → PNG → Card Kit API
 - [ ] **多智能体工作流**：并行分发子分析任务（如 Python + R 同时跑），自动聚合结果并交叉验证
 - [ ] **文献自动集成**：PubMed/bioRxiv 检索 → 自动生成引言和讨论章节，关联分析结果
 - [ ] **交互式报告生成器**：从分析输出自动生成发表级别的 HTML/PDF 报告，含图表、统计叙述

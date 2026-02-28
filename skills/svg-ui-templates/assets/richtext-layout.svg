@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" font-family="'Inter','Helvetica Neue','Microsoft YaHei',sans-serif">
+  <defs>
+    <linearGradient id="dkHdr" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#263238"/>
+      <stop offset="100%" style="stop-color:#37474F"/>
+    </linearGradient>
+    <filter id="bShadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.08"/>
+    </filter>
+    <clipPath id="imgClip1"><rect x="40" y="110" width="340" height="220" rx="8"/></clipPath>
+    <clipPath id="imgClip2"><rect x="40" y="444" width="340" height="180" rx="8"/></clipPath>
+  </defs>
+
+  <rect width="1200" height="700" fill="#FAFAFA" rx="8"/>
+
+  <!-- Header -->
+  <rect width="1200" height="56" fill="url(#dkHdr)" rx="8"/>
+  <rect y="48" width="1200" height="8" fill="url(#dkHdr)"/>
+  <text x="40" y="36" fill="#FFF" font-size="20" font-weight="700">{{TITLE}}</text>
+  <text x="1160" y="36" fill="rgba(255,255,255,0.6)" font-size="13" text-anchor="end">{{DATE}}</text>
+
+  <!-- Subtitle -->
+  <rect y="56" width="1200" height="32" fill="#ECEFF1"/>
+  <text x="40" y="78" fill="#455A64" font-size="13" font-weight="500">{{SUBTITLE}}</text>
+
+  <!-- ===== Left column: Image area 1 ===== -->
+  <rect x="40" y="110" width="340" height="220" rx="8" fill="#E0E0E0" filter="url(#bShadow)"/>
+  <!-- Placeholder: replace with <image> tag for real images -->
+  <text x="210" y="225" text-anchor="middle" fill="#9E9E9E" font-size="14">{{IMAGE_1_PLACEHOLDER}}</text>
+  <text x="210" y="248" text-anchor="middle" fill="#BDBDBD" font-size="11">340 × 220</text>
+
+  <!-- Image 1 caption -->
+  <text x="40" y="352" fill="#263238" font-size="12" font-weight="600">{{IMAGE_1_CAPTION}}</text>
+
+  <!-- ===== Right column: Main text content ===== -->
+  <rect x="410" y="110" width="760" height="220" rx="8" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1" filter="url(#bShadow)"/>
+
+  <!-- Section 1 title -->
+  <rect x="410" y="110" width="760" height="36" rx="8" fill="#E8EAF6"/>
+  <rect x="410" y="138" width="760" height="8" fill="#E8EAF6"/>
+  <text x="430" y="134" fill="#1A237E" font-size="14" font-weight="700">{{SECTION_1_TITLE}}</text>
+
+  <text x="430" y="172" fill="#37474F" font-size="13">{{SECTION_1_LINE_1}}</text>
+  <text x="430" y="196" fill="#37474F" font-size="13">{{SECTION_1_LINE_2}}</text>
+  <text x="430" y="220" fill="#37474F" font-size="13">{{SECTION_1_LINE_3}}</text>
+  <text x="430" y="244" fill="#37474F" font-size="13">{{SECTION_1_LINE_4}}</text>
+  <text x="430" y="268" fill="#37474F" font-size="13">{{SECTION_1_LINE_5}}</text>
+  <text x="430" y="292" fill="#78909C" font-size="12" font-style="italic">{{SECTION_1_NOTE}}</text>
+
+  <!-- ===== Bottom row: Text left + Image right ===== -->
+  <rect x="40" y="380" width="740" height="44" rx="6" fill="#F5F5F5"/>
+  <text x="60" y="408" fill="#263238" font-size="15" font-weight="700">{{SECTION_2_TITLE}}</text>
+
+  <!-- Text block bottom-left -->
+  <rect x="40" y="436" width="740" height="192" rx="8" fill="#FFFFFF" stroke="#E0E0E0" stroke-width="1" filter="url(#bShadow)"/>
+  <text x="60" y="470" fill="#37474F" font-size="13">{{SECTION_2_LINE_1}}</text>
+  <text x="60" y="494" fill="#37474F" font-size="13">{{SECTION_2_LINE_2}}</text>
+  <text x="60" y="518" fill="#37474F" font-size="13">{{SECTION_2_LINE_3}}</text>
+  <text x="60" y="542" fill="#37474F" font-size="13">{{SECTION_2_LINE_4}}</text>
+
+  <!-- Key metrics row inside bottom text card -->
+  <rect x="60" y="562" width="700" height="1" fill="#ECEFF1"/>
+  <rect x="60" y="574" width="160" height="40" rx="6" fill="#E3F2FD"/>
+  <text x="140" y="592" text-anchor="middle" fill="#1565C0" font-size="11" font-weight="600">{{METRIC_1_LABEL}}</text>
+  <text x="140" y="608" text-anchor="middle" fill="#0D47A1" font-size="14" font-weight="700">{{METRIC_1_VALUE}}</text>
+
+  <rect x="240" y="574" width="160" height="40" rx="6" fill="#E8F5E9"/>
+  <text x="320" y="592" text-anchor="middle" fill="#2E7D32" font-size="11" font-weight="600">{{METRIC_2_LABEL}}</text>
+  <text x="320" y="608" text-anchor="middle" fill="#1B5E20" font-size="14" font-weight="700">{{METRIC_2_VALUE}}</text>
+
+  <rect x="420" y="574" width="160" height="40" rx="6" fill="#FFF3E0"/>
+  <text x="500" y="592" text-anchor="middle" fill="#E65100" font-size="11" font-weight="600">{{METRIC_3_LABEL}}</text>
+  <text x="500" y="608" text-anchor="middle" fill="#BF360C" font-size="14" font-weight="700">{{METRIC_3_VALUE}}</text>
+
+  <rect x="600" y="574" width="160" height="40" rx="6" fill="#F3E5F5"/>
+  <text x="680" y="592" text-anchor="middle" fill="#6A1B9A" font-size="11" font-weight="600">{{METRIC_4_LABEL}}</text>
+  <text x="680" y="608" text-anchor="middle" fill="#4A148C" font-size="14" font-weight="700">{{METRIC_4_VALUE}}</text>
+
+  <!-- Image area 2 (bottom-right) -->
+  <rect x="810" y="436" width="360" height="192" rx="8" fill="#E0E0E0" filter="url(#bShadow)"/>
+  <text x="990" y="535" text-anchor="middle" fill="#9E9E9E" font-size="14">{{IMAGE_2_PLACEHOLDER}}</text>
+  <text x="990" y="558" text-anchor="middle" fill="#BDBDBD" font-size="11">360 × 192</text>
+
+  <!-- Footer -->
+  <rect x="0" y="652" width="1200" height="48" rx="0" fill="#263238"/>
+  <text x="40" y="681" fill="rgba(255,255,255,0.5)" font-size="11">{{FOOTER}}</text>
+  <text x="1160" y="681" text-anchor="end" fill="rgba(255,255,255,0.4)" font-size="11">{{PAGE_INFO}}</text>
+</svg>

@@ -78,6 +78,7 @@ sg docker -c "docker exec medgeclaw Rscript /workspace/path/to/script.R"
 2. **中文可视化必须检测字体** — 参考 skills/cjk-viz/SKILL.md，不要硬编码字体名
 3. **代码在容器里跑** — 不要在宿主机直接运行分析脚本
 4. **中文标签** — 所有可视化使用中文标签（面向中文用户）
+5. **飞书汇报用图文卡片** — 汇报进展/分析结果时，使用 feishu-rich-card skill 发送图文混排卡片，不要分开发文字和图片
 
 ## 详细配置
 
@@ -138,7 +139,23 @@ echo "   ⏭️  SOUL.md 已包含 MedgeClaw 段落，跳过"
 fi
 
 # ============================================================
-# 5. 更新 AGENTS.md (追加 MedgeClaw 上下文加载指令)
+# 5. 复制飞书卡片 & SVG UI skills 到 OpenClaw workspace
+# ============================================================
+echo "🎨 同步飞书卡片 & SVG UI skills..."
+for skill_name in feishu-rich-card svg-ui-templates; do
+    src="$MEDGECLAW_DIR/skills/$skill_name"
+    dst="$WORKSPACE/skills/$skill_name"
+    if [ -d "$src" ]; then
+        rm -rf "$dst"
+        cp -r "$src" "$dst"
+        echo "   ✅ $skill_name"
+    else
+        echo "   ⏭️  $skill_name 不存在，跳过"
+    fi
+done
+
+# ============================================================
+# 6. 更新 AGENTS.md (追加 MedgeClaw 上下文加载指令)
 # ============================================================
 echo "📋 更新 AGENTS.md..."
 if ! grep -q "MEDGECLAW.md" "$WORKSPACE/AGENTS.md" 2>/dev/null; then
@@ -149,7 +166,7 @@ echo "   ⏭️  AGENTS.md 已包含 MEDGECLAW.md，跳过"
 fi
 
 # ============================================================
-# 6. 删除 BOOTSTRAP.md (如果存在)
+# 7. 删除 BOOTSTRAP.md (如果存在)
 # ============================================================
 if [ -f "$WORKSPACE/BOOTSTRAP.md" ]; then
     rm "$WORKSPACE/BOOTSTRAP.md"

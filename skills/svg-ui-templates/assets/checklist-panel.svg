@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" font-family="'Inter','Helvetica Neue','Microsoft YaHei',sans-serif">
+  <defs>
+    <linearGradient id="hdrGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#004D40"/>
+      <stop offset="100%" style="stop-color:#00695C"/>
+    </linearGradient>
+    <filter id="cShadow" x="-2%" y="-2%" width="104%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="720" fill="#FAFAFA" rx="8"/>
+
+  <!-- Header -->
+  <rect width="1200" height="56" fill="url(#hdrGrad)" rx="8"/>
+  <rect y="48" width="1200" height="8" fill="url(#hdrGrad)"/>
+  <text x="40" y="36" fill="#FFF" font-size="20" font-weight="700">{{TITLE}}</text>
+  <text x="1160" y="36" fill="rgba(255,255,255,0.7)" font-size="13" text-anchor="end">{{DATE}}</text>
+
+  <!-- Progress summary bar -->
+  <rect x="24" y="72" width="1152" height="44" rx="8" fill="#E0F2F1"/>
+  <text x="48" y="99" fill="#004D40" font-size="14" font-weight="600">进度：{{DONE_COUNT}}/{{TOTAL_COUNT}} 已完成</text>
+  <!-- Progress bar background -->
+  <rect x="360" y="84" width="500" height="20" rx="10" fill="#B2DFDB"/>
+  <!-- Progress bar fill (adjust width for percentage) -->
+  <rect x="360" y="84" width="{{PROGRESS_WIDTH}}" height="20" rx="10" fill="#00897B"/>
+  <text x="880" y="99" fill="#004D40" font-size="13" font-weight="600">{{PROGRESS_PERCENT}}%</text>
+
+  <!-- Checklist items -->
+  <!-- Item 1: Done -->
+  <rect x="24" y="132" width="1152" height="52" rx="6" fill="#FFFFFF" filter="url(#cShadow)"/>
+  <rect x="40" y="146" width="24" height="24" rx="4" fill="#00897B"/>
+  <text x="52" y="164" fill="#FFF" font-size="15" text-anchor="middle" font-weight="700">✓</text>
+  <text x="80" y="163" fill="#37474F" font-size="14" font-weight="500" text-decoration="line-through" opacity="0.6">{{ITEM_1}}</text>
+  <rect x="1040" y="148" width="64" height="22" rx="11" fill="#E0F2F1"/>
+  <text x="1072" y="163" text-anchor="middle" fill="#00695C" font-size="11" font-weight="600">已完成</text>
+
+  <!-- Item 2: Done -->
+  <rect x="24" y="192" width="1152" height="52" rx="6" fill="#F9FBE7" filter="url(#cShadow)"/>
+  <rect x="40" y="206" width="24" height="24" rx="4" fill="#00897B"/>
+  <text x="52" y="224" fill="#FFF" font-size="15" text-anchor="middle" font-weight="700">✓</text>
+  <text x="80" y="223" fill="#37474F" font-size="14" font-weight="500" text-decoration="line-through" opacity="0.6">{{ITEM_2}}</text>
+  <rect x="1040" y="208" width="64" height="22" rx="11" fill="#E0F2F1"/>
+  <text x="1072" y="223" text-anchor="middle" fill="#00695C" font-size="11" font-weight="600">已完成</text>
+
+  <!-- Item 3: In progress -->
+  <rect x="24" y="252" width="1152" height="52" rx="6" fill="#FFFFFF" filter="url(#cShadow)" stroke="#FFB300" stroke-width="1.5"/>
+  <rect x="40" y="266" width="24" height="24" rx="4" fill="#FFF" stroke="#FFB300" stroke-width="2"/>
+  <text x="52" y="283" fill="#FFB300" font-size="12" text-anchor="middle" font-weight="700">◐</text>
+  <text x="80" y="283" fill="#263238" font-size="14" font-weight="600">{{ITEM_3}}</text>
+  <rect x="1020" y="268" width="84" height="22" rx="11" fill="#FFF8E1"/>
+  <text x="1062" y="283" text-anchor="middle" fill="#F57F17" font-size="11" font-weight="600">进行中</text>
+
+  <!-- Item 4: Pending -->
+  <rect x="24" y="312" width="1152" height="52" rx="6" fill="#FAFAFA" filter="url(#cShadow)"/>
+  <rect x="40" y="326" width="24" height="24" rx="4" fill="#FFF" stroke="#B0BEC5" stroke-width="1.5"/>
+  <text x="80" y="343" fill="#607D8B" font-size="14" font-weight="500">{{ITEM_4}}</text>
+  <rect x="1040" y="328" width="64" height="22" rx="11" fill="#ECEFF1"/>
+  <text x="1072" y="343" text-anchor="middle" fill="#78909C" font-size="11" font-weight="600">待办</text>
+
+  <!-- Item 5: Pending -->
+  <rect x="24" y="372" width="1152" height="52" rx="6" fill="#FFFFFF" filter="url(#cShadow)"/>
+  <rect x="40" y="386" width="24" height="24" rx="4" fill="#FFF" stroke="#B0BEC5" stroke-width="1.5"/>
+  <text x="80" y="403" fill="#607D8B" font-size="14" font-weight="500">{{ITEM_5}}</text>
+  <rect x="1040" y="388" width="64" height="22" rx="11" fill="#ECEFF1"/>
+  <text x="1072" y="403" text-anchor="middle" fill="#78909C" font-size="11" font-weight="600">待办</text>
+
+  <!-- Item 6: Blocked -->
+  <rect x="24" y="432" width="1152" height="52" rx="6" fill="#FFEBEE" filter="url(#cShadow)" stroke="#E53935" stroke-width="1" stroke-dasharray="6,3"/>
+  <rect x="40" y="446" width="24" height="24" rx="4" fill="#FFF" stroke="#E53935" stroke-width="2"/>
+  <text x="52" y="463" fill="#E53935" font-size="14" text-anchor="middle" font-weight="700">✕</text>
+  <text x="80" y="463" fill="#C62828" font-size="14" font-weight="500">{{ITEM_6}}</text>
+  <rect x="1030" y="448" width="74" height="22" rx="11" fill="#FFCDD2"/>
+  <text x="1067" y="463" text-anchor="middle" fill="#C62828" font-size="11" font-weight="600">阻塞</text>
+
+  <!-- Notes area -->
+  <rect x="24" y="508" width="1152" height="1" fill="#CFD8DC"/>
+  <text x="40" y="540" fill="#546E7A" font-size="13" font-weight="600">备注</text>
+  <text x="40" y="562" fill="#78909C" font-size="12">{{NOTE_1}}</text>
+  <text x="40" y="582" fill="#78909C" font-size="12">{{NOTE_2}}</text>
+
+  <!-- Footer -->
+  <text x="40" y="640" fill="#B0BEC5" font-size="11">{{FOOTER}}</text>
+
+  <!-- Legend -->
+  <rect x="880" y="620" width="16" height="16" rx="3" fill="#00897B"/>
+  <text x="902" y="633" fill="#546E7A" font-size="11">已完成</text>
+  <rect x="960" y="620" width="16" height="16" rx="3" fill="#FFF" stroke="#FFB300" stroke-width="2"/>
+  <text x="982" y="633" fill="#546E7A" font-size="11">进行中</text>
+  <rect x="1040" y="620" width="16" height="16" rx="3" fill="#FFF" stroke="#B0BEC5" stroke-width="1.5"/>
+  <text x="1062" y="633" fill="#546E7A" font-size="11">待办</text>
+  <rect x="1100" y="620" width="16" height="16" rx="3" fill="#FFEBEE" stroke="#E53935" stroke-width="1"/>
+  <text x="1122" y="633" fill="#546E7A" font-size="11">阻塞</text>
+</svg>

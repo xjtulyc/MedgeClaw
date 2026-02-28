@@ -105,6 +105,8 @@ WORKSPACE_DIR="$(pwd)/openclaw-workspace"
 mkdir -p "${WORKSPACE_DIR}/skills"
 
 cp -r skills/biomed-dispatch "${WORKSPACE_DIR}/skills/"
+cp -r skills/feishu-rich-card "${WORKSPACE_DIR}/skills/" 2>/dev/null || true
+cp -r skills/svg-ui-templates "${WORKSPACE_DIR}/skills/" 2>/dev/null || true
 
 # Write valid OpenClaw config (skills.load.extraDirs is the correct key)
 SKILLS_DIR="$(pwd)/skills"

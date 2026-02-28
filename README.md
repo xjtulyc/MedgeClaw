@@ -25,10 +25,10 @@ OpenClaw Gateway  (conversation layer)
 Claude Code  (execution layer)
         ↓  K-Dense Scientific Skills (140 skills)
 R + Python Analysis Environment (Docker)
-        ↓                    ↓
-Research Dashboard :77xx    RStudio :8787 / JupyterLab :8888
-  (real-time progress,        (interactive exploration)
-   code & output preview)
+        ↓                    ↓                    ↓
+Research Dashboard :77xx    RStudio :8787       Feishu Rich Cards
+  (real-time progress,      / JupyterLab :8888    (SVG panels → PNG
+   code & output preview)   (interactive)          → interactive cards)
 ```
 
 ---
@@ -47,6 +47,8 @@ Research Dashboard :77xx    RStudio :8787 / JupyterLab :8888
 | **JupyterLab**                | Browser-based Python/R notebooks at `localhost:8888`                               |
 | **biomed-dispatch**           | The bridge skill that routes your requests to Claude Code                          |
 | **CJK Visualization**         | Auto-detects CJK fonts for matplotlib, no more tofu blocks in Chinese plots        |
+| **SVG UI Templates**          | Professional SVG panels for lists, checklists, pipeline status, and rich reports   |
+| **Feishu Rich Card**          | Send image-rich interactive cards in Feishu group chats for progress reports       |
 
 ---
 
@@ -195,8 +197,15 @@ MedgeClaw/
 │   │   ├── SKILL.md        # Dashboard specification & state.json schema
 │   │   ├── dashboard.html  # Single-file frontend (dark theme, IBM palette)
 │   │   └── dashboard_serve.py  # Threaded HTTP server
-│   └── cjk-viz/            # CJK font detection for matplotlib
-│       └── SKILL.md
+│   ├── cjk-viz/            # CJK font detection for matplotlib
+│   │   └── SKILL.md
+│   ├── svg-ui-templates/   # Professional SVG panels (list, checklist, pipeline, report)
+│   │   ├── SKILL.md
+│   │   ├── assets/         # 4 template SVGs
+│   │   └── references/     # Template guide
+│   └── feishu-rich-card/   # Send image-rich interactive cards in Feishu
+│       ├── SKILL.md
+│       └── references/     # send_card.py helper
 ├── scientific-skills/      # git submodule → K-Dense (140 skills)
 ├── data/                   # Per-task data & analysis directories
 │   └── <task_name>/
@@ -242,6 +251,8 @@ Please follow the [AgentSkills specification](https://agentskills.io/specificati
 - [x] **Research Dashboard**: real-time web dashboard with progress tracking, step-by-step code & output preview, copy/download, color-blind friendly design
 - [x] **CJK visualization skill**: auto-detect CJK fonts in Docker, solve `.ttc` font rendering issues
 - [x] **Feishu integration**: connect to Feishu group chat for team collaboration
+- [x] **SVG UI Templates**: professional-grade SVG panels (list, checklist, pipeline status, rich-text layout) with Material Design palette
+- [x] **Feishu Rich Cards**: send image-rich interactive cards in Feishu — SVG/matplotlib → PNG → Card Kit API, with mixed text+image layout
 - [ ] **Multi-agent workflow**: Parallel dispatch of sub-analyses (e.g., Python + R simultaneously) with result aggregation and cross-validation
 - [ ] **Automated literature integration**: Connect PubMed/bioRxiv search → auto-generate introduction and discussion sections referencing analysis results
 - [ ] **Interactive report builder**: Auto-generate publication-ready HTML/PDF reports with figures, tables, and statistical narratives from analysis outputs

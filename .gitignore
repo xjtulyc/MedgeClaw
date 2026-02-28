@@ -6,3 +6,4 @@ node_modules/
 __pycache__/
 .Rhistory
 *.log
+__pycache__/

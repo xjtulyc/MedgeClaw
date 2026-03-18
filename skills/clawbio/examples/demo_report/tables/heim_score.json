@@ -1,0 +1,25 @@
+{
+  "heim_score": 76.2,
+  "rating": "Good",
+  "components": {
+    "representation_index": 0.72,
+    "heterozygosity_balance": 0.667,
+    "fst_coverage": 1.0,
+    "geographic_spread": 0.714
+  },
+  "weights": {
+    "w1": 0.35,
+    "w2": 0.25,
+    "w3": 0.2,
+    "w4": 0.2
+  },
+  "n_samples": 50,
+  "n_populations": 5,
+  "population_counts": {
+    "AFR": 8,
+    "AMR": 5,
+    "EAS": 7,
+    "EUR": 22,
+    "SAS": 8
+  }
+}

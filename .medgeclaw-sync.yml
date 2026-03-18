@@ -23,6 +23,7 @@ skills:
   - skills/cjk-viz -> skills/cjk-viz
   - skills/dashboard -> skills/dashboard
   - skills/biomed-dispatch -> skills/biomed-dispatch
+  - skills/clawbio -> skills/clawbio
 
 # ============================================================
 # 追加内容（幂等，按 marker 判断是否已追加）

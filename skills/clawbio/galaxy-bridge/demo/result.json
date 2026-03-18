@@ -1,0 +1,16 @@
+{
+  "mode": "demo",
+  "tool": "fastqc",
+  "tool_version": "0.74+galaxy1",
+  "input": "demo/demo_reads.fq",
+  "output": "/Users/jinxiu/Desktop/medge claw/MedgeClaw/skills/clawbio/galaxy-bridge/demo/fastqc_demo_output.html",
+  "qc_modules": {
+    "per_base_sequence_quality": "PASS",
+    "per_sequence_quality_scores": "PASS",
+    "per_base_sequence_content": "WARN",
+    "sequence_length_distribution": "PASS",
+    "overrepresented_sequences": "PASS",
+    "adapter_content": "PASS"
+  },
+  "timestamp": "2026-03-18T08:28:01.694570+00:00"
+}

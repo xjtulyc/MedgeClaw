@@ -31,7 +31,10 @@ RUN pip3 install --no-cache-dir \
     matplotlib seaborn plotly \
     scikit-learn \
     networkx \
-    uv
+    uv \
+    requests \
+    bioblend \
+    openpyxl
 
 # ── R: Bioconductor + CRAN packages ──────────────────────────────────────────
 RUN Rscript -e "install.packages('BiocManager', repos='https://cloud.r-project.org')"

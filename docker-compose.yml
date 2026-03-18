@@ -15,6 +15,7 @@ services:
       - ./data:/workspace/data               # user data (shared read/write)
       - ./outputs:/workspace/outputs         # analysis outputs
       - ./scientific-skills:/workspace/skills/scientific  # K-Dense skills (read-only)
+      - ./skills/clawbio:/workspace/skills/clawbio       # ClawBio skills + common library
       - claude-config:/root/.claude          # Claude Code config persistence
     environment:
       # RStudio Server
@@ -31,6 +32,10 @@ services:
       - NCBI_API_KEY=${NCBI_API_KEY:-}
       - CHEMBL_API_KEY=${CHEMBL_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      # ClawBio skills
+      - PYTHONPATH=/workspace/skills/clawbio
+      - GALAXY_URL=${GALAXY_URL:-https://usegalaxy.org}
+      - GALAXY_API_KEY=${GALAXY_API_KEY:-}
     networks:
       - biomed-net
 

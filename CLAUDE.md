@@ -133,6 +133,37 @@ Skills 位于 `scientific-skills/scientific-skills/` 目录，每个子目录包
 
 如果不确定用哪个 skill，可以 `ls scientific-skills/scientific-skills/` 浏览完整列表。
 
+## ClawBio 精准医学技能
+
+**用户提到药物基因组、GWAS、基因组比较、营养基因组、Galaxy 工具等任务时，使用 ClawBio 技能。**
+
+技能脚本位于 `skills/clawbio/`，在 Docker 容器内路径为 `/workspace/skills/clawbio/`。
+容器已设置 `PYTHONPATH=/workspace/skills/clawbio`。
+
+### 任务 → 技能映射
+
+| 任务类型 | 技能 | 命令示例 |
+|----------|------|----------|
+| 药物基因组/用药指导 | `pharmgx-reporter` | `docker exec medgeclaw python3 /workspace/skills/clawbio/pharmgx-reporter/pharmgx_reporter.py --demo --output ...` |
+| GWAS 变异查询 | `gwas-lookup` | `docker exec medgeclaw python3 /workspace/skills/clawbio/gwas-lookup/gwas_lookup.py --rsid rs3798220 --output ...` |
+| 多基因风险评分 | `gwas-prs` | `docker exec medgeclaw python3 /workspace/skills/clawbio/gwas-prs/gwas_prs.py --demo --output ...` |
+| ClinPGx 数据库查询 | `clinpgx` | `docker exec medgeclaw python3 /workspace/skills/clawbio/clinpgx/clinpgx.py --demo --output ...` |
+| 营养基因组 | `nutrigx-advisor` | `docker exec medgeclaw python3 /workspace/skills/clawbio/nutrigx-advisor/nutrigx_advisor.py --demo --output ...` |
+| 基因组比较/IBS | `genome-compare` | `docker exec medgeclaw python3 /workspace/skills/clawbio/genome-compare/genome_compare.py --demo --output ...` |
+| 祖源 PCA | `claw-ancestry-pca` | `docker exec medgeclaw python3 /workspace/skills/clawbio/claw-ancestry-pca/ancestry_pca.py --demo --output ...` |
+| 群体公平性/HEIM | `equity-scorer` | `docker exec medgeclaw python3 /workspace/skills/clawbio/equity-scorer/equity_scorer.py --demo --output ...` |
+| Galaxy 生物信息工具 | `galaxy-bridge` | `docker exec medgeclaw python3 /workspace/skills/clawbio/galaxy-bridge/galaxy_bridge.py --demo` |
+| 图表数据提取 | `data-extractor` | `docker exec medgeclaw python3 /workspace/skills/clawbio/data-extractor/data_extractor.py --input <img> --output ...` |
+| 个人基因组报告 | `profile-report` | `docker exec medgeclaw python3 /workspace/skills/clawbio/profile-report/profile_report.py --demo --output ...` |
+
+### 使用要点
+
+- 所有技能支持 `--demo` 模式，用户无数据时直接演示
+- 输出路径统一为 `/workspace/data/<task_name>/output/`
+- 基因文件自动识别格式（23andMe/AncestryDNA/VCF）
+- 涉及图表生成时，技能内已集成 CJK 字体检测
+- 统一 runner：`docker exec medgeclaw python3 /workspace/skills/clawbio/runner.py list`
+
 ## Scientific Writer 参考（K-Dense）
 
 **遇到学术写作、文献综述、基金申请、临床报告等写作任务时，必须查阅 Scientific Writer Skills。**

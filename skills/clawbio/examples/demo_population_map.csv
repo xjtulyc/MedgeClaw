@@ -1,0 +1,51 @@
+sample_id,population,superpopulation,country
+AFR_001,AFR,African,Kenya
+AFR_002,AFR,African,Ghana
+AFR_003,AFR,African,South Africa
+AFR_004,AFR,African,Nigeria
+AFR_005,AFR,African,South Africa
+AFR_006,AFR,African,Ghana
+AFR_007,AFR,African,South Africa
+AFR_008,AFR,African,Kenya
+AMR_001,AMR,Admixed American,Mexico
+AMR_002,AMR,Admixed American,Mexico
+AMR_003,AMR,Admixed American,Mexico
+AMR_004,AMR,Admixed American,Colombia
+AMR_005,AMR,Admixed American,Brazil
+EAS_001,EAS,East Asian,China
+EAS_002,EAS,East Asian,China
+EAS_003,EAS,East Asian,Vietnam
+EAS_004,EAS,East Asian,China
+EAS_005,EAS,East Asian,Japan
+EAS_006,EAS,East Asian,Vietnam
+EAS_007,EAS,East Asian,China
+EUR_001,EUR,European,Poland
+EUR_002,EUR,European,Poland
+EUR_003,EUR,European,Spain
+EUR_004,EUR,European,France
+EUR_005,EUR,European,UK
+EUR_006,EUR,European,Ireland
+EUR_007,EUR,European,UK
+EUR_008,EUR,European,Spain
+EUR_009,EUR,European,Italy
+EUR_010,EUR,European,Italy
+EUR_011,EUR,European,France
+EUR_012,EUR,European,Poland
+EUR_013,EUR,European,Ireland
+EUR_014,EUR,European,Italy
+EUR_015,EUR,European,Ireland
+EUR_016,EUR,European,Poland
+EUR_017,EUR,European,France
+EUR_018,EUR,European,Poland
+EUR_019,EUR,European,Sweden
+EUR_020,EUR,European,UK
+EUR_021,EUR,European,Ireland
+EUR_022,EUR,European,Italy
+SAS_001,SAS,South Asian,Bangladesh
+SAS_002,SAS,South Asian,Bangladesh
+SAS_003,SAS,South Asian,Sri Lanka
+SAS_004,SAS,South Asian,Bangladesh
+SAS_005,SAS,South Asian,Sri Lanka
+SAS_006,SAS,South Asian,Pakistan
+SAS_007,SAS,South Asian,Sri Lanka
+SAS_008,SAS,South Asian,Sri Lanka

@@ -159,6 +159,53 @@ claude --dangerously-skip-permissions -p "Use Scanpy scientific skill. Analyze 1
 - ❌ `/workspace/outputs/`（已废弃）
 - ❌ `/workspace/data/`（只读，用户输入数据）
 
+## ClawBio 精准医学技能
+
+以下技能通过 Docker 执行，脚本位于 `/workspace/skills/clawbio/`。
+容器已设置 `PYTHONPATH=/workspace/skills/clawbio`，可直接运行。
+
+### 路由表
+
+| 用户意图 | 技能 | Docker 命令 |
+|---------|------|-------------|
+| 药物基因组/用药指导/CYP2D6/华法林/CPIC | pharmgx-reporter | `docker exec medgeclaw python3 /workspace/skills/clawbio/pharmgx-reporter/pharmgx_reporter.py --input <file> --output /workspace/data/<task>/output/` |
+| GWAS 变异查询/rsID/PheWAS/eQTL | gwas-lookup | `docker exec medgeclaw python3 /workspace/skills/clawbio/gwas-lookup/gwas_lookup.py --rsid <rsid> --output /workspace/data/<task>/output/` |
+| 多基因风险评分/PRS/遗传风险 | gwas-prs | `docker exec medgeclaw python3 /workspace/skills/clawbio/gwas-prs/gwas_prs.py --input <file> --output /workspace/data/<task>/output/` |
+| ClinPGx/基因-药物数据库/PharmGKB | clinpgx | `docker exec medgeclaw python3 /workspace/skills/clawbio/clinpgx/clinpgx.py --gene <symbol> --output /workspace/data/<task>/output/` |
+| 营养基因组/MTHFR/叶酸/维生素D/咖啡因 | nutrigx-advisor | `docker exec medgeclaw python3 /workspace/skills/clawbio/nutrigx-advisor/nutrigx_advisor.py --input <file> --output /workspace/data/<task>/output/` |
+| 基因组比较/IBS/祖源估计 | genome-compare | `docker exec medgeclaw python3 /workspace/skills/clawbio/genome-compare/genome_compare.py --input <file> --output /workspace/data/<task>/output/` |
+| 祖源PCA/群体结构/SGDP | claw-ancestry-pca | `docker exec medgeclaw python3 /workspace/skills/clawbio/claw-ancestry-pca/ancestry_pca.py --demo --output /workspace/data/<task>/output/` |
+| 群体公平性/HEIM评分/FST | equity-scorer | `docker exec medgeclaw python3 /workspace/skills/clawbio/equity-scorer/equity_scorer.py --input <file> --output /workspace/data/<task>/output/` |
+| Galaxy工具/NGS流水线/usegalaxy | galaxy-bridge | `docker exec medgeclaw python3 /workspace/skills/clawbio/galaxy-bridge/galaxy_bridge.py --search <query>` |
+| 科学图表数据提取 | data-extractor | `docker exec medgeclaw python3 /workspace/skills/clawbio/data-extractor/data_extractor.py --input <img> --output /workspace/data/<task>/output/` |
+| 个人基因组报告/统一档案 | profile-report | `docker exec medgeclaw python3 /workspace/skills/clawbio/profile-report/profile_report.py --demo --output /workspace/data/<task>/output/` |
+| RNA-seq差异表达/DESeq2/火山图 | rnaseq-de | `docker exec medgeclaw python3 /workspace/skills/clawbio/rnaseq-de/rnaseq_de.py --counts <file> --metadata <file> --output /workspace/data/<task>/output/` |
+
+### ClawBio Runner（批量运行）
+
+也可通过统一 runner 运行：
+```bash
+docker exec medgeclaw python3 /workspace/skills/clawbio/runner.py list
+docker exec medgeclaw python3 /workspace/skills/clawbio/runner.py run pharmgx --demo --output /workspace/data/<task>/output/
+```
+
+### Demo 模式
+
+所有 ClawBio 技能支持 `--demo` 模式，使用合成数据即时演示。
+**当用户没有输入文件时，直接使用 `--demo` 运行并说明为合成数据，不要拒绝。**
+
+### 基因档案（PatientProfile）
+
+用户上传基因数据（23andMe/AncestryDNA/VCF）后，可创建持久化档案：
+```bash
+docker exec medgeclaw python3 -c "
+from clawbio.common.profile import PatientProfile
+p = PatientProfile.from_genetic_file('/workspace/data/<file>', patient_id='<id>')
+p.save('/workspace/data/profiles/<id>.json')
+"
+```
+后续技能可通过 `--profile /workspace/data/profiles/<id>.json` 复用，无需重复上传。
+
 ## Important rules
 - Never modify raw data files in `/workspace/data/`
 - If the user's request is ambiguous, ask one clarifying question before dispatching
